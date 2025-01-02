@@ -2,111 +2,185 @@ import os
 from langchain.agents import initialize_agent, Tool, AgentType
 from langchain.llms import OpenAI
 from secretes.secrets import OPENAI_API_KEY
+import openai
 
-
-try:
-    os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
-except Exception as e:
-    print(f"Error setting environment variable: {e}")
-
-# Path to the folder containing code files
-SOURCE_FOLDER = "src"
-REPORTS_FOLDER = "report"
+# Initialize OpenAI LLM
+llm = OpenAI(api_key=OPENAI_API_KEY)
 
 
 
-# Ensure the reports folder exists
-os.makedirs(REPORTS_FOLDER, exist_ok=True)
 
-# Initialize LangChain LLM
-llm = OpenAI(temperature=0.8)
 
-def analyze_code(file_path, custom_prompt):
-    """Analyzes the code in the given file using a custom prompt and returns a quality report."""
-    try:
-        # Read the code from the file
-        with open(file_path, 'r') as file:
-            code = file.read()
+# Define paths
+input_folder = "./Code/src_code"
+output_folder = "./Code/report"
 
-        # Define the analysis tool
-        tools = [
-            Tool(
-                name="Code Analyzer",
-                func=lambda text: f"Custom prompt: {custom_prompt}\n\nCode: {text[:100]}...",  # Example stub function
-                description="Analyzes code quality and provides feedback using a custom prompt."
-            )
-        ]
+# Create output folder if it doesn't exist
+os.makedirs(output_folder, exist_ok=True)
 
-        # Initialize the agent
-        agent = initialize_agent( tools=tools,
-        llm=llm,
-        agent=AgentType.OPENAI_FUNCTIONS ,
-        
-        verbose=True,)
+sample_format = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Quality Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        h1 {
+            color: #1e8bc3;
+        }
+        .section-header {
+            background-color: #1e8bc3;
+            color: white;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .issue-list {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #ffffff;
+        }
+        .issue {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .issue:last-child {
+            border-bottom: none;
+        }
+        .severity {
+            font-weight: bold;
+            color: #d9534f; /* Default red for high severity */
+        }
+        .recommendation {
+            font-weight: bold;
+        }
+        .description {
+            font-style: italic;
+        }
+        .suggestion {
+            margin-top: 5px;
+            padding-left: 15px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Code Quality Report</h1>
 
-        # Run the analysis
-        report = agent.run(f"{custom_prompt}\n\n{code}")
-        return report
+    <p><strong>Introduction:</strong> This report provides a detailed analysis of the code, focusing on identifying quality issues, correctness, security vulnerabilities, and suggestions for improvements.</p>
+    
+    <p><strong>Documentation:</strong> This code is designed for XYZ purposes. Please review the issues and suggested improvements below.</p>
 
-    except Exception as e:
-        return f"Error analyzing file {file_path}: {str(e)}"
+    <div class="section-header">Issues Found:</div>
+    <div class="issue-list">
+        <!-- Repeat the following block for each issue -->
+        <div class="issue">
+            <span class="severity">High Severity</span>
+            <p class="recommendation">Recommendation 1:</p>
+            <p class="description">[Detailed feedback and suggested improvements for this issue.]</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> [Actionable recommendation or best practice.]
+            </div>
+        </div>
 
-def save_html_report(file_name, code, report):
-    """Saves an HTML report for the given code and analysis."""
-    try:
-        html_content = f"""
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Code Quality Report - {file_name}</title>
-            <style>
-                body {{ font-family: Arial, sans-serif; margin: 20px; }}
-                pre {{ background-color: #f4f4f4; padding: 10px; border: 1px solid #ddd; }}
-                h1, h2 {{ color: #333; }}
-            </style>
-        </head>
-        <body>
-            <h1>Code Quality Report</h1>
-            <h2>File: {file_name}</h2>
-          
-            
-            <h3>Analysis:</h3>
-            <pre>{report}</pre>
-        </body>
-        </html>
-        """
-
-        report_file_path = os.path.join(REPORTS_FOLDER, f"{file_name}.html")
-        with open(report_file_path, 'w') as html_file:
-            html_file.write(html_content)
-
-        print(f"HTML report saved: {report_file_path}")
-
-    except Exception as e:
-        print(f"Error saving HTML report for {file_name}: {str(e)}")
-
-# Walk through the source folder
-custom_prompt = """
-Validate the following code for best practices, correctness, and security,
-Provide a detailed code quality analysis and improvement suggestions for the following code,
-
-Provide detailed feedback and recommendations in a ordered list one by one.
+        <div class="issue">
+            <span class="severity">Medium Severity</span>
+            <p class="recommendation">Recommendation 2:</p>
+            <p class="description">[Detailed feedback and suggested improvements for this issue.]</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> [Actionable recommendation or best practice.]
+            </div>
+        </div>
+        <!-- Add more issues here as necessary -->
+    </div>
+</body>
+</html>
 """
-for root, _, files in os.walk(SOURCE_FOLDER):
-    for file_name in files:
-        if file_name.endswith(('.py', '.js', '.java', '.cpp', '.ts', '.tsx')):  # Filter for code files
-            file_path = os.path.join(root, file_name)
 
-            print(f"Analyzing file: {file_path}")
-            report = analyze_code(file_path, custom_prompt)
 
-            # Read the code to include in the HTML report
-            with open(file_path, 'r') as file:
-                code = file.read()
+def analyze_code(file_path):
+    """
+    Analyze the code using OpenAI API and return a quality report.
+    """
+    with open(file_path, 'r', encoding='utf-8') as file:
+        code_content = file.read()
 
-            # Save the HTML report
-            save_html_report(file_name, code, report)
+    try:
+        # Set the OpenAI API key
+        openai.api_key = OPENAI_API_KEY
+        # Use OpenAI to analyze code
+        response = openai.ChatCompletion.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "You are a code quality analyzer."},
+                {"role": "user", "content": f"""
+                Analyze the following code for quality issues, best practices, correctness, and security. Provide detailed feedback and recommendations in an ordered list, one by one. Format the output as a well-structured HTML report.
 
-print("Code analysis completed. Reports are saved in the reports folder.")
+                Code:
+                {code_content}
+                \n\n
+                Output format:\n
+                - Provide details documentations of the code.\n
+                - The report should be structured in an HTML format with a `<head>` containing metadata and a `<body>` with a title, introduction, Code documentations and the ordered list of recommendations.\n
+                - Each recommendation in the ordered list should have a brief description followed by the suggested improvement or best practice.\n
+                - Ensure the HTML is properly formatted with appropriate sections, headings, and lists.\n
+
+                Example HTML structure:
+                {sample_format}\n
+
+                """}
+            ]
+        )
+        return response['choices'][0]['message']['content']
+    except Exception as e:
+        return f"Error analyzing code: {e}"
+
+
+# Define tools for the agent
+tools = [
+    Tool(
+        name="Code Quality Analyzer",
+        func=analyze_code,
+        description="Analyzes code for quality issues, best practices, correctness, and security."
+    )
+]
+
+# Initialize the agent
+agent = initialize_agent(
+    tools=tools,
+    llm=llm,
+    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    verbose=True
+)
+
+
+def process_folder(folder_path=input_folder):
+    """
+    Recursively process each file in the folder and generate a quality report.
+    """
+    for root, _, files in os.walk(folder_path):
+        for file in files:
+            file_path = os.path.join(root, file)
+            if file_path.endswith(('.py', '.js', '.tsx', '.java', '.cpp', '.html', '.css')):  # Add other extensions as needed
+                print(f"Analyzing: {file_path}")
+                
+                # Use the agent to analyze the code
+                report = agent.run(file_path)
+                
+                # Save the report
+                relative_path = os.path.relpath(file_path, input_folder)
+                report_file_path = os.path.join(output_folder, relative_path + ".report.html")
+                os.makedirs(os.path.dirname(report_file_path), exist_ok=True)
+                
+                with open(report_file_path, 'w', encoding='utf-8') as report_file:
+                    report_file.write(report)
+    
+
+
