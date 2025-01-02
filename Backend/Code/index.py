@@ -44,8 +44,6 @@ def create_zip_of_repo(repo_path, zip_path):
                 zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), repo_path))
 
 def download_repo():
-    
-    
     # Assuming the repo is cloned to a folder named 'repo'
     repo_path = './Code/report'
     zip_path = './Code/repo.zip'
