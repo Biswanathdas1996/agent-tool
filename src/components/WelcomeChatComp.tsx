@@ -4,7 +4,7 @@ const WelcomeChatComp: React.FC = () => {
   return (
     <>
       <div className="bot-details-card">
-        <h2>Welcome to the AI , your Sales Rep. Intelligent Assistant!!</h2>
+        <h2>Welcome to the AI Intelligent Assistant!!</h2>
         <p>I'm here to make your job easier by helping you with:</p>
         <div className="chat-menuHldr">
           <div className="mrl">
@@ -14,8 +14,8 @@ const WelcomeChatComp: React.FC = () => {
                 alt="Call Icon"
               />
               <div>
-                As a Manager, you can access and review the sales data of the
-                MRs under your supervision. Let's get started
+                As an AI agent, I’m here to help you review and analyze the
+                sales data of your team—let’s get started!
               </div>
             </div>
             <div>

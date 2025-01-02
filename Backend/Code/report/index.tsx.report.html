@@ -1,0 +1,139 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Quality Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        h1 {
+            color: #1e8bc3;
+        }
+        .section-header {
+            background-color: #1e8bc3;
+            color: white;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .issue-list {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #ffffff;
+        }
+        .issue {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .issue:last-child {
+            border-bottom: none;
+        }
+        .severity {
+            font-weight: bold;
+            color: #d9534f; /* Default red for high severity */
+        }
+        .recommendation {
+            font-weight: bold;
+        }
+        .description {
+            font-style: italic;
+        }
+        .suggestion {
+            margin-top: 5px;
+            padding-left: 15px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Code Quality Report</h1>
+
+    <p><strong>Introduction:</strong> This report provides a detailed analysis of the code, focusing on identifying quality issues, correctness, security vulnerabilities, and suggestions for improvements.</p>
+    
+    <p><strong>Documentation:</strong> The provided code is a React component named <code>Layout</code> that includes a navigation sidebar with links and routing functionalities. It demonstrates a user interface for a chatbot page, with breadcrumb navigation and user-related details in the header.</p>
+
+    <div class="section-header">Issues Found:</div>
+    <div class="issue-list">
+
+        <div class="issue">
+            <span class="severity">Medium Severity</span>
+            <p class="recommendation">Recommendation 1: Unused Imports</p>
+            <p class="description">There are several unused imports like <code>SaveAsIcon</code> and <code>DatasetLinkedIcon</code> in the code.</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Remove unused imports to improve code readability and possibly reduce build size.
+            </div>
+        </div>
+
+        <div class="issue">
+            <span class="severity">Medium Severity</span>
+            <p class="recommendation">Recommendation 2: Inconsistent Styling and commented-out styles</p>
+            <p class="description">Inline styles are used in multiple places making the code harder to maintain. There are also commented-out styles in the code.</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Move inline styles to CSS classes or styled components, and remove commented-out styles for cleaner code.
+            </div>
+        </div>
+
+        <div class="issue">
+            <span class="severity">Low Severity</span>
+            <p class="recommendation">Recommendation 3: Console.log Statements</p>
+            <p class="description">The usage of <code>console.log</code> for logging the current path.</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Remove or replace console logs with a proper logging library to avoid exposure in production environments.
+            </div>
+        </div>
+
+        <div class="issue">
+            <span class="severity">Medium Severity</span>
+            <p class="recommendation">Recommendation 4: Dynamic HTML Modifications with Vanilla JS</p>
+            <p class="description">Using <code>document.querySelectorAll</code> to manage class manipulation with vanilla JavaScript for route links.</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Employ React state management or hooks (like useState) to handle active links for a more React-centric approach.
+            </div>
+        </div>
+
+        <div class="issue">
+            <span class="severity">Low Severity</span>
+            <p class="recommendation">Recommendation 5: Security Concern on href Usage</p>
+            <p class="description">Utilizing <code>href</code> with <code>#</code> might lead to an unintended user experience or security implications.</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Consider using React Router's <code>Link</code> component with a suitable navigation strategy.
+            </div>
+        </div>
+
+        <div class="issue">
+            <span class="severity">Low Severity</span>
+            <p class="recommendation">Recommendation 6: Repeated Heavy Calculations</p>
+            <p class="description">Double call to <code>.toUpperCase()</code> for the model name retrieval from localStorage.</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Reduce method calls by storing the result of the first call.
+            </div>
+        </div>
+
+        <div class="issue">
+            <span class="severity">High Severity</span>
+            <p class="recommendation">Recommendation 7: Missing Fallbacks for Dynamic Content</p>
+            <p class="description">Potential missing values in localStorage may cause <code>null</code> or <code>undefined</code> values to be displayed.</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Provide default values or fallback UI for fetching local storage values.
+            </div>
+        </div>
+
+        <div class="issue">
+            <span class="severity">High Severity</span>
+            <p class="recommendation">Recommendation 8: Hardcoded Images</p>
+            <p class="description">User image is hardcoded using a base64-encoded string.</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Replace the base64 string with URLs pointing to a static resource or allow dynamic user uploads.
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
+```

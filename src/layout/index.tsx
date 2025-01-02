@@ -17,6 +17,7 @@ import SpeakerNotesIcon from "@mui/icons-material/SpeakerNotes";
 import { useLocation } from "react-router-dom";
 import VoiceChatIcon from "@mui/icons-material/VoiceChat";
 import DatasetLinkedIcon from "@mui/icons-material/DatasetLinked";
+import TerminalIcon from "@mui/icons-material/Terminal";
 
 const iconStyle = {
   //  color: "#d04a02",
@@ -52,6 +53,11 @@ const routes = [
     path: "/upload",
     name: "Knowledge Base",
     icon: () => <UploadFileIcon style={iconStyle} />,
+  },
+  {
+    path: "/code-review",
+    name: "Code Review",
+    icon: () => <TerminalIcon style={iconStyle} />,
   },
   {
     path: "/config",

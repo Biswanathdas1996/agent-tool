@@ -11,6 +11,7 @@ from mongodb.rag import render_mongo_pack
 from mongodb.data_handling import render_mongo_data_pack
 from AI_agents.app import render_ai_agent
 from Devops.index import render_deploy_agent
+from Code.index import render_code_review_agent
 
 if __name__ == "__main__":
     
@@ -23,6 +24,7 @@ if __name__ == "__main__":
 
     app = render_ai_agent(app)
     app = render_deploy_agent(app)
+    app = render_code_review_agent(app)
 
     CORS(app)
  
@@ -141,4 +143,4 @@ def extract_img_api():
 
 
 if __name__ == "__main__":
-        app.run(debug=True)
+        app.run()

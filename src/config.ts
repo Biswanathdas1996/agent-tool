@@ -24,6 +24,12 @@ export const GET_ERD_IMG = `${BASE_URL}/get-erd-image`;
 export const AGENTIC_API = `${BASE_URL}/validate-code`;
 export const DEPLOY_CODE = `${BASE_URL}/deploy`;
 
+// ---------------cpde review ---------------------------
+
+export const SUBMIT_REPO = `${BASE_URL}/submit-repo`;
+export const PROCESS_CODE = `${BASE_URL}/process-code`;
+export const DOWNLOAD_REPORT = `${BASE_URL}/download-repo`;
+
 // ---------Mongo ---------------------------
 export const INSERT_DATA_TO_MONGO = `${BASE_URL}/insert-data`;
 export const UPDATE_DATA_TO_MONGO_BY_ID = `${BASE_URL}/update-data-by-id`;
