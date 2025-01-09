@@ -20,23 +20,25 @@ def clear_folder(dest_folder):
                 os.rmdir(os.path.join(root, name))
 
 def submit_repo():
-    data = request.get_json()
-    git_repo_link = data.get('git_repo_link')
-    
-    clear_folder(src_code_path)
-    clear_folder(report_path)
+    try:
+        data = request.get_json()
+        git_repo_link = data.get('git_repo_link')
+        
+        clear_folder(src_code_path)
+        clear_folder(report_path)
 
-    if not git_repo_link:
-        return jsonify({'error': 'git_repo_link is required'}), 400
-    
-    result = clone_github_repo(git_repo_link)
-    return jsonify({'result': result}), 200
+        if not git_repo_link:
+            return jsonify({'error': 'git_repo_link is required'}), 400
+        
+        result = clone_github_repo(git_repo_link)
+        return jsonify({'result': result}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 def process_code():
     try:
         data = process_folder()
         clear_folder(src_code_path)
-        
         
         html_files = [f for f in os.listdir(report_path) if f.endswith('.html')]
         
@@ -53,7 +55,6 @@ def generate_doc_for_code_fn():
         data = process_folder(generate_doc=True)
         clear_folder(src_code_path)
         
-       
         html_files = [f for f in os.listdir(report_path) if f.endswith('.html')]
         
         if not html_files:
@@ -65,15 +66,21 @@ def generate_doc_for_code_fn():
         return jsonify({'error': str(e)}), 500
 
 def create_zip_of_repo(repo_path, zip_path):
-    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for root, dirs, files in os.walk(repo_path):
-            for file in files:
-                zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), repo_path))
+    try:
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for root, dirs, files in os.walk(repo_path):
+                for file in files:
+                    zipf.write(os.path.join(root, file), os.path.relpath(os.path.join(root, file), repo_path))
+    except Exception as e:
+        raise Exception(f"Error creating zip file: {str(e)}")
 
 def download_repo():
-    create_zip_of_repo(report_path, zip_path)
-    clear_folder(report_path)
-    return send_file(zip_path, as_attachment=True)
+    try:
+        create_zip_of_repo(report_path, zip_path)
+        clear_folder(report_path)
+        return send_file(zip_path, as_attachment=True)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 def render_code_review_agent(app):
     app.add_url_rule('/submit-repo', 'submit_repo_api', submit_repo, methods=['POST'])

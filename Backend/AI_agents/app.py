@@ -60,8 +60,4 @@ def render_ai_agent(app):
     app.add_url_rule('/validate-code', 'validate_code_api', validate_code, methods=['POST'])
     return app
 
-# Example usage with Flask app
-if __name__ == "__main__":
-    app = Flask(__name__)
-    app = render_ai_agent(app)
-    app.run(host='0.0.0.0', port=5000)
+

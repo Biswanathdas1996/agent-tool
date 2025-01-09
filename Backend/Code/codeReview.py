@@ -101,10 +101,10 @@ def analyze_code(file_path):
     """
     Analyze the code using OpenAI API and return a quality report.
     """
-    with open(file_path, 'r', encoding='utf-8') as file:
-        code_content = file.read()
-
     try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            code_content = file.read()
+
         set_openai_api_key()
         response = openai.ChatCompletion.create(
             model="gpt-4o",
@@ -135,10 +135,10 @@ def generate_doc_for_code(file_path):
     """
     Generate documentation for the code using OpenAI API and return a quality report.
     """
-    with open(file_path, 'r', encoding='utf-8') as file:
-        code_content = file.read()
-
     try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            code_content = file.read()
+
         set_openai_api_key()
         response = openai.ChatCompletion.create(
             model="gpt-4o",
@@ -166,27 +166,31 @@ def save_report(report, file_path):
     """
     Save the report to the specified file path.
     """
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-    with open(file_path, 'w', encoding='utf-8') as report_file:
-        report_file.write(report)
+    try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, 'w', encoding='utf-8') as report_file:
+            report_file.write(report)
+    except Exception as e:
+        print(f"Error saving report: {e}")
 
 def process_folder(generate_doc=False):
     """
     Recursively process each file in the folder and generate a quality report.
     """
-    for root, _, files in os.walk(INPUT_FOLDER):
-        for file in files:
-            file_path = os.path.join(root, file)
-            if file_path.endswith(('.py', '.js', '.tsx', '.java', '.cpp', '.html', '.css')):  # Add other extensions as needed
-                print(f"Analyzing: {file_path}")
-                if generate_doc:
-                    report = generate_doc_for_code(file_path)
-                else:
-                    report = analyze_code(file_path)
-                
-                # Save the report
-                relative_path = os.path.relpath(file_path, INPUT_FOLDER)
-                report_file_path = os.path.join(OUTPUT_FOLDER, relative_path + ".report.html")
-                save_report(report, report_file_path)
-
-
+    try:
+        for root, _, files in os.walk(INPUT_FOLDER):
+            for file in files:
+                file_path = os.path.join(root, file)
+                if file_path.endswith(('.py', '.js', '.tsx', '.java', '.cpp', '.html', '.css')):  # Add other extensions as needed
+                    print(f"Analyzing: {file_path}")
+                    if generate_doc:
+                        report = generate_doc_for_code(file_path)
+                    else:
+                        report = analyze_code(file_path)
+                    
+                    # Save the report
+                    relative_path = os.path.relpath(file_path, INPUT_FOLDER)
+                    report_file_path = os.path.join(OUTPUT_FOLDER, relative_path + ".report.html")
+                    save_report(report, report_file_path)
+    except Exception as e:
+        print(f"Error processing folder: {e}")

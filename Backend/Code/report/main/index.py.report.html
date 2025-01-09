@@ -36,7 +36,7 @@
         }
         .severity {
             font-weight: bold;
-            color: #d9534f; /* Default red for high severity */
+            color: #d9534f;
         }
         .recommendation {
             font-weight: bold;
@@ -56,65 +56,64 @@
 
     <p><strong>Introduction:</strong> This report provides a detailed analysis of the code, focusing on identifying quality issues, correctness, security vulnerabilities, and suggestions for improvements.</p>
     
-    <p><strong>Documentation:</strong> This code is designed to load CSV files into a temporary SQLite database, retrieve table headers, read a JSON configuration file, execute SQL queries, and format SQL results for reporting purposes.</p>
+    <p><strong>Documentation:</strong> This code is designed to load CSV files into a temporary SQLite database, execute SQL queries on those, and retrieve results. It also retrieves an ERD configuration from a JSON file. Please review the issues and suggested improvements below.</p>
 
     <div class="section-header">Issues Found:</div>
     <div class="issue-list">
-
         <div class="issue">
             <span class="severity">High Severity</span>
             <p class="recommendation">Recommendation 1:</p>
-            <p class="description">SQL Injection Vulnerability in execute_query() and delete_temp_table() functions.</p>
+            <p class="description">SQL Injection Vulnerability in `get_table_headers` and `delete_temp_table` functions.</p>
             <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Use parameterized queries to protect against SQL injection vulnerabilities. For example, modify the query execution in delete_temp_table to use `cursor.execute("DROP TABLE IF EXISTS ?", (table_name,))`.
+                <strong>Suggested Improvement:</strong> Use parameterized queries to prevent SQL injection by passing table names as parameters to functions.
             </div>
         </div>
 
         <div class="issue">
             <span class="severity">Medium Severity</span>
             <p class="recommendation">Recommendation 2:</p>
-            <p class="description">Lack of Connection Cleanup upon Exceptions in Various Functions.</p>
+            <p class="description">The `load_all_csv_to_sqlite` function returns None when an error occurs, but the rest of the code does not handle this case.</p>
             <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Ensure that the SQLite connection is always closed properly by using a `finally` block or context managers (`with` statements) to handle resource cleanup.
+                <strong>Suggested Improvement:</strong> Check if the connection is None before using it in other functions, and handle it appropriately to prevent exceptions.
             </div>
         </div>
 
         <div class="issue">
             <span class="severity">Medium Severity</span>
             <p class="recommendation">Recommendation 3:</p>
-            <p class="description">Potential Performance Bottleneck Due to Using In-Memory Database for Large CSV Files.</p>
+            <p class="description">Queries in `execute_query` lack error handling for specific error types.</p>
             <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Consider using a disk-based database if the CSV files are large or if data persistence is required across sessions.
+                <strong>Suggested Improvement:</strong> Handle specific exceptions such as sqlite3.DatabaseError or sqlite3.OperationalError, providing more clarity on the issue.
             </div>
         </div>
 
         <div class="issue">
             <span class="severity">Low Severity</span>
             <p class="recommendation">Recommendation 4:</p>
-            <p class="description">Inefficient Error Handling with Broad Exception Clauses.</p>
+            <p class="description">The `execute_query` function prints the query instead of logging it.</p>
             <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Catch more specific exception types instead of a broad `Exception`. This makes it easier to handle different error scenarios more effectively.
+                <strong>Suggested Improvement:</strong> Use a logging library instead of print statements for better management and configurability of log outputs.
             </div>
         </div>
 
         <div class="issue">
             <span class="severity">Low Severity</span>
             <p class="recommendation">Recommendation 5:</p>
-            <p class="description">Potential Issue with CSV File Encoding or Unexpected Formats.</p>
+            <p class="description">Function `format_sql_result` assumes certain keywords ('FROM', 'JOIN') will exist in the query string, which might not always be true.</p>
             <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Use the `encoding` parameter in `pd.read_csv()` to handle different file encodings and improve the robustness against unexpected file formats.
-            </div>
-        </div>
-
-        <div class="issue">
-            <span class="severity">Low Severity</span>
-            <p class="recommendation">Recommendation 6:</p>
-            <p class="description">Security Risk of Exposing Detailed Error Messages in Console.</p>
-            <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Avoid printing detailed error messages directly to the console in a production environment. Log errors securely instead.
+                <strong>Suggested Improvement:</strong> Add checks to ensure these keywords exist before accessing their indices in the query.
             </div>
         </div>
         
+        <div class="issue">
+            <span class="severity">Low Severity</span>
+            <p class="recommendation">Recommendation 6:</p>
+            <p class="description">Multiple split operations on the query in `format_sql_result` create redundancy.</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Store the split query in a variable to avoid repetitive operations and improve performance slightly.
+            </div>
+        </div>
+        <!-- Additional recommended improvements can be added here -->
     </div>
 </body>
 </html>

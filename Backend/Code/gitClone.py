@@ -5,27 +5,41 @@ import shutil
 import stat
 
 
-
 def remove_readonly(func, path, excinfo):
-    os.chmod(path, stat.S_IWRITE)
-    func(path)
+    try:
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+    except Exception as e:
+        print(f"Error removing readonly attribute: {e}")
 
 
 def delete_folder_contents(folder_path):
-    for root, dirs, files in os.walk(folder_path, topdown=False):
-        for name in files:
-            os.remove(os.path.join(root, name))
-        for name in dirs:
-            os.rmdir(os.path.join(root, name))
+    try:
+        for root, dirs, files in os.walk(folder_path, topdown=False):
+            for name in files:
+                try:
+                    os.remove(os.path.join(root, name))
+                except Exception as e:
+                    print(f"Error removing file {name}: {e}")
+            for name in dirs:
+                try:
+                    os.rmdir(os.path.join(root, name))
+                except Exception as e:
+                    print(f"Error removing directory {name}: {e}")
+    except Exception as e:
+        print(f"Error walking through folder {folder_path}: {e}")
 
 
 def generate_folder_structure_json(folder_path):
     folder_structure = {}
-    for root, dirs, files in os.walk(folder_path):
-        relative_path = os.path.relpath(root, folder_path)
-        if relative_path == '.':
-            relative_path = ''
-        folder_structure[relative_path] = {'dirs': dirs, 'files': files}
+    try:
+        for root, dirs, files in os.walk(folder_path):
+            relative_path = os.path.relpath(root, folder_path)
+            if relative_path == '.':
+                relative_path = ''
+            folder_structure[relative_path] = {'dirs': dirs, 'files': files}
+    except Exception as e:
+        print(f"Error generating folder structure JSON: {e}")
     return folder_structure
 
 
