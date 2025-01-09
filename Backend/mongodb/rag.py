@@ -1,11 +1,10 @@
 from sentence_transformers import SentenceTransformer
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from pymongo import MongoClient
 import os
 from pymongo.operations import SearchIndexModel
 import time
-from flask import Flask, request, jsonify
+from flask import request, jsonify
 from mongodb.client import get_Client
 
 
