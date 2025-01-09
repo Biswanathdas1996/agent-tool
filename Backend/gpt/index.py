@@ -50,33 +50,42 @@ def extract_image(file_path):
 
 def direct_gpt_call():
     """Handle direct GPT call from the API."""
-    data = request.json
-    user_question = data.get('question')
-    token_limit = data.get('token_limit', 1000)
-    if not user_question:
-        return jsonify({"error": "No question provided"}), 400
     try:
-        result_json = call_gpt("You are a polite, helping intelligent agent", user_question, token_limit)
-        return result_json
+        data = request.json
+        user_question = data.get('question')
+        token_limit = data.get('token_limit', 1000)
+        if not user_question:
+            return jsonify({"error": "No question provided"}), 400
+        try:
+            result_json = call_gpt("You are a polite, helping intelligent agent", user_question, token_limit)
+            return result_json
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Failed to process request: {e}"}), 500
 
 def extract_img_api():
     """Handle image extraction API call."""
-    if 'file' not in request.files:
-        return jsonify({"error": "No file provided"}), 400
-    file = request.files['file']
-    file_path = os.path.join(os.environ["IMG_UPLOAD_FOLDER"], file.filename)
-    file.save(file_path)
-    try: 
-        img_details = extract_image(file_path)
-        return jsonify({"details": img_details}), 200
+    try:
+        if 'file' not in request.files:
+            return jsonify({"error": "No file provided"}), 400
+        file = request.files['file']
+        file_path = os.path.join(os.environ["IMG_UPLOAD_FOLDER"], file.filename)
+        file.save(file_path)
+        try: 
+            img_details = extract_image(file_path)
+            return jsonify({"details": img_details}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Failed to process request: {e}"}), 500
 
 def render_gpt_pack(app):
     """Register API routes with the Flask app."""
-    app.add_url_rule('/call-gpt', 'call_gpt_api', direct_gpt_call, methods=['POST'])
-    app.add_url_rule('/extract-img', 'extract_image_api', extract_img_api, methods=['POST'])
-    return app
-
+    try:
+        app.add_url_rule('/call-gpt', 'call_gpt_api', direct_gpt_call, methods=['POST'])
+        app.add_url_rule('/extract-img', 'extract_image_api', extract_img_api, methods=['POST'])
+        return app
+    except Exception as e:
+        print(f"An error occurred while registering routes: {e}")
+        return app

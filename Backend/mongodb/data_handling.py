@@ -5,10 +5,15 @@ from mongodb.client import get_Client
 
 
 def get_collection():
-    collection_name = os.environ["X-mongo-collection"]
-    my_client = get_Client()
-    collection = my_client["data_db"][collection_name]
-    return collection
+    try:
+        collection_name = os.environ["X-mongo-collection"]
+        my_client = get_Client()
+        collection = my_client["data_db"][collection_name]
+        return collection
+    except KeyError:
+        raise Exception("Environment variable 'X-mongo-collection' not set")
+    except Exception as e:
+        raise Exception(f"Error getting collection: {str(e)}")
 
 
 def insert_data():
@@ -21,7 +26,7 @@ def insert_data():
         if request_data is None:
             return jsonify({"error": "No data provided"}), 400
         result = collection.insert_one(dict(request_data))
-        return jsonify({"message": f"Data inserted successfully on {os.environ["X-mongo-collection"]}",}), 200
+        return jsonify({"message": f"Data inserted successfully on {os.environ['X-mongo-collection']}"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
@@ -41,12 +46,8 @@ def update_data_by_id():
         if new_values is None:
             return jsonify({"error": "No data provided to update"}), 400
 
-      
         collection = get_collection()
-   
-
         result = collection.update_one({"_id": document_id}, {"$set": dict(new_values)})
-    
        
         if result.modified_count == 0:
             return jsonify({"message": "Document found but no changes were made"}), 200
@@ -70,7 +71,7 @@ def update_data():
     
 def delete_data():
     data = request.get_json()
-    0
+    
     try:
         collection = get_collection()
         filter_criteria = data.get('filter', {})
@@ -82,10 +83,6 @@ def delete_data():
         return jsonify({"error": str(e)}), 500
 
 def get_all_data():
-    # data = request.get_json()
-    # collection_name = str(data.get('collection_name', ''))
-    # if not collection_name:
-    #     return jsonify({"error": "Collection name cannot be empty"}), 400
     try:
         collection = get_collection()
         documents = list(collection.find())
@@ -97,14 +94,10 @@ def get_all_data():
     
 def get_data_by_id():
     data = request.get_json()
-    # collection_name = str(data.get('collection_name', ''))
-    # if not collection_name:
-    #     return jsonify({"error": "Collection name cannot be empty"}), 400
+    
     try:
         collection = get_collection()
         document_id = data.get('id')
-        # if not document_id:
-        #     return jsonify({"error": "Document ID cannot be empty"}), 400
         try:
             document_id = ObjectId(document_id)
         except Exception as e:
@@ -135,10 +128,14 @@ def render_mongo_data_pack(app):
     
     @app.before_request
     def before_request():
-        collection_name = request.headers.get('X-mongo-collection')
-        if collection_name:
-            os.environ["X-mongo-collection"] = collection_name
-        print(f"X-mongo-collection: {collection_name}")
+        try:
+            collection_name = request.headers.get('X-mongo-collection')
+            if collection_name:
+                os.environ["X-mongo-collection"] = collection_name
+            print(f"X-mongo-collection: {collection_name}")
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
     app.add_url_rule('/insert-data', 'create_collection_api', insert_data, methods=['POST'])
     app.add_url_rule('/update-data-by-id', 'update_data_by_id_api', update_data_by_id, methods=['POST'])
     app.add_url_rule('/update-data', 'update_data_api', update_data, methods=['POST'])
