@@ -2,7 +2,12 @@ import React from "react";
 import WelcomeChatComp from "../components/WelcomeChatComp";
 import UserChat from "../components/UserChat";
 import LlmReply from "../components/LlmReply";
-import { SUBMIT_REPO, PROCESS_CODE, DOWNLOAD_REPORT } from "../config";
+import {
+  SUBMIT_REPO,
+  PROCESS_CODE,
+  DOWNLOAD_REPORT,
+  GENERATE_DOC_FOR_CODE,
+} from "../config";
 import Loader from "../components/Loader";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../redux/store";
@@ -82,7 +87,7 @@ const Chat: React.FC = () => {
       redirect: "follow",
     };
 
-    fetch(PROCESS_CODE, requestOptions)
+    fetch(GENERATE_DOC_FOR_CODE, requestOptions)
       .then((response) => response.text())
       .then((result) => {
         setPreview(result);
@@ -133,7 +138,7 @@ const Chat: React.FC = () => {
   };
   return (
     <>
-      <h2>Code Review Agent</h2>
+      <h2>Code Documentation Agent</h2>
       <div className="chat-hldr">
         <div className="chat-scrollhldr">
           <div

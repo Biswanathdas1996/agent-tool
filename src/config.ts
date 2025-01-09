@@ -28,6 +28,7 @@ export const DEPLOY_CODE = `${BASE_URL}/deploy`;
 
 export const SUBMIT_REPO = `${BASE_URL}/submit-repo`;
 export const PROCESS_CODE = `${BASE_URL}/process-code`;
+export const GENERATE_DOC_FOR_CODE = `${BASE_URL}/generate-doc`;
 export const DOWNLOAD_REPORT = `${BASE_URL}/download-repo`;
 
 // ---------Mongo ---------------------------

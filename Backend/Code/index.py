@@ -3,7 +3,7 @@ import os
 import zipfile
 from flask import send_file
 from .gitClone import clone_github_repo
-from .codeReview import process_folder
+from .codeReview import process_folder, generate_code_doc
 
 def clear_folder(dest_folder):
     """
@@ -32,7 +32,35 @@ def process_code():
     try:
         data = process_folder()
         clear_folder('./Code/src_code')
-        return jsonify({'result': "Code processed successfully"}), 200
+         # Get any one of the HTML files from the reports folder
+        reports_folder = './Code/report'
+        html_files = [f for f in os.listdir(reports_folder) if f.endswith('.html')]
+        
+        if not html_files:
+            return jsonify({'error': 'No HTML files found in the reports folder'}), 404
+        
+        html_file_path = os.path.join(reports_folder, html_files[0])
+        return send_file(html_file_path, as_attachment=True)
+        # return jsonify({'result': "Code processed successfully"}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+
+def generate_doc_for_code():
+    try:
+        data = generate_code_doc()
+        clear_folder('./Code/src_code')
+
+        # Get any one of the HTML files from the reports folder
+        reports_folder = './Code/report'
+        html_files = [f for f in os.listdir(reports_folder) if f.endswith('.html')]
+        
+        if not html_files:
+            return jsonify({'error': 'No HTML files found in the reports folder'}), 404
+        
+        html_file_path = os.path.join(reports_folder, html_files[0])
+        return send_file(html_file_path, as_attachment=True)
+        # return jsonify({'result': "Code processed successfully"}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -58,5 +86,6 @@ def render_code_review_agent(app):
     
     app.add_url_rule('/submit-repo', 'submit_repo_api', submit_repo, methods=['POST'])
     app.add_url_rule('/process-code', 'process_folder_api', process_code, methods=['GET'])
+    app.add_url_rule('/generate-doc', 'generate_doc_for_code_api', generate_doc_for_code, methods=['GET'])
     app.add_url_rule('/download-repo', 'download_repo_api', download_repo, methods=['GET'])
     return app

@@ -5,6 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import Chat from "./pages/Chat";
 import ChatWithUnstructure from "./pages/ChatWithUnstructure";
 import CodeReview from "./pages/CodeReview";
+import CodeDoc from "./pages/CodeDoc";
 import Queries from "./pages/Queries";
 import DBConfig from "./pages/DBConfig";
 import Layout from "./layout/index";
@@ -29,6 +30,7 @@ function App() {
           <Route path="/sql-chat" element={<Chat />} />
           <Route path="/data-chat" element={<ChatWithUnstructure />} />
           <Route path="/code-review" element={<CodeReview />} />
+          <Route path="/code-doc" element={<CodeDoc />} />
           <Route path="/query" element={<Queries />} />
           <Route path="/story" element={<UserStoryGeneration />} />
           <Route path="/backlog/story" element={<UserStoryGeneration />} />

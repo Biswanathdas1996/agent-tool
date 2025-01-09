@@ -18,6 +18,7 @@ import { useLocation } from "react-router-dom";
 import VoiceChatIcon from "@mui/icons-material/VoiceChat";
 import DatasetLinkedIcon from "@mui/icons-material/DatasetLinked";
 import TerminalIcon from "@mui/icons-material/Terminal";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 
 const iconStyle = {
   //  color: "#d04a02",
@@ -38,11 +39,11 @@ const routes = [
     icon: () => <VoiceChatIcon style={iconStyle} />,
   },
 
-  // {
-  //   path: "/user-story",
-  //   name: "Create New Story",
-  //   icon: () => <LibraryAddIcon style={iconStyle} />,
-  // },
+  {
+    path: "/story",
+    name: "Create New Story",
+    icon: () => <LibraryAddIcon style={iconStyle} />,
+  },
   {
     path: "/backlog",
     name: "Story Backlog",
@@ -50,14 +51,19 @@ const routes = [
   },
 
   {
-    path: "/upload",
-    name: "Knowledge Base",
-    icon: () => <UploadFileIcon style={iconStyle} />,
+    path: "/code-doc",
+    name: "Code Documentation",
+    icon: () => <AssignmentIcon style={iconStyle} />,
   },
   {
     path: "/code-review",
     name: "Code Review",
     icon: () => <TerminalIcon style={iconStyle} />,
+  },
+  {
+    path: "/upload",
+    name: "Knowledge Base",
+    icon: () => <UploadFileIcon style={iconStyle} />,
   },
   {
     path: "/config",
