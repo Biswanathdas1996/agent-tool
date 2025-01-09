@@ -56,74 +56,63 @@
 
     <p><strong>Introduction:</strong> This report provides a detailed analysis of the code, focusing on identifying quality issues, correctness, security vulnerabilities, and suggestions for improvements.</p>
     
-    <p><strong>Documentation:</strong> This code represents a React component for a layout that includes navigation routes. It uses Material-UI for icons and styling. The layout is intended to manage and display different sections of a web interface.</p>
+    <p><strong>Documentation:</strong> The code is a React component intended to provide a layout for a web application, featuring routing and navigation functionalities with icons and a sidebar. Below are the identified issues and improvements.</p>
 
     <div class="section-header">Issues Found:</div>
     <div class="issue-list">
+        <div class="issue">
+            <span class="severity">Medium Severity</span>
+            <p class="recommendation">Recommendation 1: Avoid Use of Inline Styles</p>
+            <p class="description">The code contains several instances of inline styles, which are generally discouraged in favor of CSS classes for maintainability and scalability.</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Move inline styles to a CSS file or styled-components for better separation of concerns and reusable styling.
+            </div>
+        </div>
 
         <div class="issue">
             <span class="severity">Medium Severity</span>
-            <p class="recommendation">Recommendation 1:</p>
-            <p class="description">Unused import of `SaveAsIcon` and `SpeakerNotesIcon`.</p>
+            <p class="recommendation">Recommendation 2: Dynamic Class Manipulation</p>
+            <p class="description">The `sidenav` uses manual class manipulation to highlight the active link, which can be prone to errors and is not the most efficient way.</p>
             <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Remove unused imports to clean up code and reduce unnecessary dependencies.
+                <strong>Suggested Improvement:</strong> Utilize state management (e.g., using React's useState) to manage the active link state and conditional rendering of class names.
             </div>
         </div>
 
         <div class="issue">
             <span class="severity">High Severity</span>
-            <p class="recommendation">Recommendation 2:</p>
-            <p class="description">Direct usage of `window.location.href` for routing decisions.</p>
+            <p class="recommendation">Recommendation 3: Improper URL Handling</p>
+            <p class="description">The code uses `window.location.href` to check the current path and manipulate links, which is prone to security risks such as URL injection.</p>
             <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Use the `useLocation` hook from `react-router-dom` to manage routing state properly within React's ecosystem instead of relying on `window.location.href`.
-            </div>
-        </div>
-
-        <div class="issue">
-            <span class="severity">High Severity</span>
-            <p class="recommendation">Recommendation 3:</p>
-            <p class="description">Storing sensitive information like model data in `localStorage` is not secure.</p>
-            <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Avoid storing sensitive information in `localStorage` where it can be easily accessed by JavaScript. Consider using environment variables or secure cookies.
+                <strong>Suggested Improvement:</strong> Use React Router's `useLocation` hook or similar to manage the application's routing in a secure way.
             </div>
         </div>
 
         <div class="issue">
             <span class="severity">Low Severity</span>
-            <p class="recommendation">Recommendation 4:</p>
-            <p class="description">Excessive commented-out code blocks and lines.</p>
+            <p class="recommendation">Recommendation 4: Console Logging</p>
+            <p class="description">There is a `console.log` statement in the code that should be removed in production builds to prevent information leakage.</p>
             <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Remove commented-out code to improve readability unless necessary, in which case consider documenting why it is present.
-            </div>
-        </div>
-
-        <div class="issue">
-            <span class="severity">Medium Severity</span>
-            <p class="recommendation">Recommendation 5:</p>
-            <p class="description">Inline styles used excessively, leading to less maintainable code.</p>
-            <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Move inline styles to CSS classes or use a CSS-in-JS solution for better code management and maintainability.
-            </div>
-        </div>
-
-        <div class="issue">
-            <span class="severity">Medium Severity</span>
-            <p class="recommendation">Recommendation 6:</p>
-            <p class="description">Console log left in production code.</p>
-            <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Remove or replace `console.log` statements with proper logging or debugging mechanisms prior to production deployment.
+                <strong>Suggested Improvement:</strong> Remove or conditionally compile logging using environment variables.
             </div>
         </div>
 
         <div class="issue">
             <span class="severity">Low Severity</span>
-            <p class="recommendation">Recommendation 7:</p>
-            <p class="description">Non-descriptive variable names such as `routes` that could be more specific to component.</p>
+            <p class="recommendation">Recommendation 5: Unused and Commented Code</p>
+            <p class="description">The code contains commented-out elements and unused imports which may clutter the code base.</p>
             <div class="suggestion">
-                <strong>Suggested Improvement:</strong> Use more descriptive naming conventions to make code clearer, e.g., `navigationRoutes`.
+                <strong>Suggested Improvement:</strong> Regularly refactor the code to remove unused imports and commented-out sections.
             </div>
         </div>
 
+        <div class="issue">
+            <span class="severity">Low Severity</span>
+            <p class="recommendation">Recommendation 6: UX Improvement for 'Model in Use'</p>
+            <p class="description">The text 'Moldel in use' is likely a typo and uses localStorage in a way that might lead to unexpected UI issues if the item is not set.</p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Correct the typo to 'Model in use:' and ensure safe access to local storage data (e.g. use a default value or handle null cases).
+            </div>
+        </div>
     </div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-from helper.gpt import call_gpt
+from gpt.index import call_gpt
 from helper.utils import convert_to_json, convert_string_to_json
 
 
