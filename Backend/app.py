@@ -23,8 +23,7 @@ if __name__ == "__main__":
 
     CORS(app)
 
-  
-    os.environ["IMG_UPLOAD_FOLDER"] = 'asset/uploads'
+    os.environ["IMG_UPLOAD_FOLDER"] = 'gpt/uploads'
     os.makedirs(os.environ["IMG_UPLOAD_FOLDER"], exist_ok=True)
     try:
         os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
@@ -37,8 +36,6 @@ if __name__ == "__main__":
         if custom_header:
             os.environ["X-Ai-Model"] = custom_header
             print(f"X-Ai-Model: {custom_header}")
-
-
 
 if __name__ == "__main__":
         app.run()
