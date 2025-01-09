@@ -11,6 +11,7 @@ export const CALL_GPT = `${BASE_URL}/call-gpt`;
 export const SEARCH = `${BASE_URL}/get-context-mongo`;
 export const UPLOAD_DOC = `${BASE_URL}/upload-collection-doc-mongo`;
 export const INDEXING = `${BASE_URL}/indexing-mongo`;
+export const DELETE_COLLECTION = `${BASE_URL}/delete-collection`;
 export const LIST_ALL_COLLECTION = `${BASE_URL}/list-index-mongo`;
 
 export const COLLECTIONS = `${BASE_URL}/collection`;

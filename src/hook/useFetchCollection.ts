@@ -9,6 +9,7 @@ export const useFetchCollection = () => {
 
   useEffect(() => {
     const fetchDataFromAPI = async () => {
+      window.pageLoader(true);
       try {
         const response = await fetchData(LIST_ALL_COLLECTION, {
           method: "GET",
@@ -24,6 +25,7 @@ export const useFetchCollection = () => {
         }
       } finally {
         setLoading(false);
+        window.pageLoader(false);
       }
     };
 

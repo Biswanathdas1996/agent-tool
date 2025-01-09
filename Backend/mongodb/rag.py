@@ -8,10 +8,10 @@ from flask import request, jsonify
 from mongodb.client import get_Client
 
 
-def get_collection(index_name):
+def get_collection(collection_name):
     try:
         my_client = get_Client()
-        collection = my_client["rag_db"][index_name]
+        collection = my_client["rag_db"][collection_name]
         return collection
     except Exception as e:
         raise Exception(f"Error getting collection: {str(e)}")
@@ -39,10 +39,10 @@ def save_temp_file(files, folder_path):
     return file_paths
 
 
-def upload_file_to_mongo_db(file, save_file_path, index_name):
+def upload_file_to_mongo_db(files, save_file_path, collection_name):
     try:
-        file_path = save_temp_file(file, save_file_path)
-        for path in file_path:
+        files_path = save_temp_file(files, save_file_path)
+        for path in files_path:
             if os.path.exists(path) and os.path.getsize(path) > 0:
                 loader = PyPDFLoader(path)
                 data = loader.load()
@@ -55,20 +55,20 @@ def upload_file_to_mongo_db(file, save_file_path, index_name):
         docs_to_insert = [{
             "text": doc.page_content,
             "embedding": get_embedding(doc.page_content, model),
-            "page_number": doc.metadata["page"],
+            "page_number": doc.metadata["page"] + 1,
             "doc_name": doc.metadata["source"]
         } for doc in documents]
 
-        collection = get_collection(index_name)
+        collection = get_collection(collection_name)
         result = collection.insert_many(docs_to_insert)
         return result
     except Exception as e:
         return f"An error occurred while inserting documents: {str(e)}"
 
 
-def indexing(index_name):
+def indexing(collection_name):
     try:
-        collection = get_collection(index_name)
+        collection = get_collection(collection_name)
         search_index_model = SearchIndexModel(
             definition={
                 "fields": [
@@ -80,7 +80,7 @@ def indexing(index_name):
                     }
                 ]
             },
-            name=index_name,
+            name=collection_name,
             type="vectorSearch"
         )
         collection.create_search_index(model=search_index_model)
@@ -90,11 +90,11 @@ def indexing(index_name):
             predicate = lambda index: index.get("queryable") is True
 
         while True:
-            indices = list(collection.list_search_indexes(index_name))
+            indices = list(collection.list_search_indexes(collection_name))
             if len(indices) and predicate(indices[0]):
                 break
             time.sleep(5)
-        print(index_name + " is ready for querying.")
+        print(collection_name + " is ready for querying.")
     except Exception as e:
         raise Exception(f"Error indexing collection: {str(e)}")
 
@@ -131,7 +131,7 @@ def get_query_results(query, index_name, no_of_results=5):
         raise Exception(f"Error getting query results: {str(e)}")
 
 
-def list_indexes():
+def collection_names():
     try:
         collection = get_collection("any")
         indexes = collection.database.list_collection_names()
@@ -162,9 +162,18 @@ def index_collextion_mongo_api():
         return jsonify({"error": str(e)}), 500
 
 
+def delete_collection_mongo_api():
+    try:
+        collection_name = request.form.get('collection_name')
+        collection = get_collection(collection_name)
+        collection.drop()
+        return jsonify({f"message": "{collection_name} successfully deleted"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 def list_all_index_api():
     try:
-        result = list_indexes()
+        result = collection_names()
         return jsonify({f"collections": result}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -186,6 +195,7 @@ def get_query_results_mongo_api():
 def render_mongo_pack(app):
     app.add_url_rule('/upload-collection-doc-mongo', 'upload_files_data_mongo', upload_files_data_mongo_api, methods=['POST'])
     app.add_url_rule('/indexing-mongo', 'index_collextion_mongo', index_collextion_mongo_api, methods=['POST'])
+    app.add_url_rule('/delete-collection', 'delete_collection_mongo', delete_collection_mongo_api, methods=['POST'])
     app.add_url_rule('/list-index-mongo', 'list_all_index', list_all_index_api, methods=['GET'])
     app.add_url_rule('/get-context-mongo', 'get_query_results_mongo', get_query_results_mongo_api, methods=['POST'])
     return app

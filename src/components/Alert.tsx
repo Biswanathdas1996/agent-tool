@@ -15,7 +15,7 @@ export default function SimpleAlert() {
     const timer = setTimeout(() => {
       dispatch(hideAlert());
       clearTimeout(timer);
-    }, 3000);
+    }, 20000);
   }
 
   return alertData?.visible ? (
@@ -25,6 +25,7 @@ export default function SimpleAlert() {
       color={alertData?.type}
       severity={alertData?.type}
       style={{ marginBottom: "-4rem", zIndex: 1000000, position: "relative" }}
+      onClose={() => dispatch(hideAlert())}
     >
       <AlertTitle>
         {alertData?.type.charAt(0).toUpperCase() + alertData?.type.slice(1)}
