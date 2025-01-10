@@ -157,6 +157,76 @@ const Upload: React.FC = () => {
           + Add new collection
         </Button>
       </div>
+      {showUpload && (
+        <div className="bot-details-card">
+          <h2>Upload Your Documents</h2>
+          <p>
+            Please select a file to upload. Ensure it is in the correct format.
+          </p>
+          <br />
+          <br />
+          <div className="chat-menuHldr">
+            <div className="mrl">
+              <div></div>
+              <div>
+                <div>
+                  <TextField
+                    type="text"
+                    onChange={(e) => setValue(e.target.value)}
+                    value={value}
+                    variant="outlined"
+                    placeholder="Collection Name"
+                    style={{ marginRight: "10px" }}
+                  />
+
+                  <TextField
+                    type="file"
+                    onChange={handleFileChange}
+                    variant="outlined"
+                    style={{ marginRight: "10px" }}
+                  />
+                  <br />
+                  <br />
+
+                  {loadingUpload && (
+                    <Loader text="Uploading" showIcon={false} />
+                  )}
+                  {loadingIndex && <Loader text="Indexing" showIcon={false} />}
+                  {!loadingUpload && !loadingIndex && (
+                    <Button
+                      variant="contained"
+                      color="warning"
+                      size="small"
+                      onClick={handleUpload}
+                      style={{ padding: "15px 20px", marginLeft: "10px" }}
+                    >
+                      Upload
+                    </Button>
+                  )}
+                  <Button
+                    variant="outlined"
+                    color="warning"
+                    size="small"
+                    onClick={() => setShowUpload(false)}
+                    style={{ padding: "15px 20px", marginLeft: "10px" }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+                <div></div>
+              </div>
+
+              <div></div>
+            </div>
+
+            {/* {collections && <ListView collections={collections?.collections} />} */}
+          </div>
+          <br />
+          <br />
+          <br />
+          <br />
+        </div>
+      )}
       <div
         style={{
           display: "flex",
@@ -329,76 +399,6 @@ const Upload: React.FC = () => {
           </Table>
         </TableContainer>
       </div>
-      {showUpload && (
-        <div className="bot-details-card">
-          <h2>Upload Your Documents</h2>
-          <p>
-            Please select a file to upload. Ensure it is in the correct format.
-          </p>
-          <br />
-          <br />
-          <div className="chat-menuHldr">
-            <div className="mrl">
-              <div></div>
-              <div>
-                <div>
-                  <TextField
-                    type="text"
-                    onChange={(e) => setValue(e.target.value)}
-                    value={value}
-                    variant="outlined"
-                    placeholder="Collection Name"
-                    style={{ marginRight: "10px" }}
-                  />
-
-                  <TextField
-                    type="file"
-                    onChange={handleFileChange}
-                    variant="outlined"
-                    style={{ marginRight: "10px" }}
-                  />
-                  <br />
-                  <br />
-
-                  {loadingUpload && (
-                    <Loader text="Uploading" showIcon={false} />
-                  )}
-                  {loadingIndex && <Loader text="Indexing" showIcon={false} />}
-                  {!loadingUpload && !loadingIndex && (
-                    <Button
-                      variant="contained"
-                      color="warning"
-                      size="small"
-                      onClick={handleUpload}
-                      style={{ padding: "15px 20px", marginLeft: "10px" }}
-                    >
-                      Upload
-                    </Button>
-                  )}
-                  <Button
-                    variant="outlined"
-                    color="warning"
-                    size="small"
-                    onClick={() => setShowUpload(false)}
-                    style={{ padding: "15px 20px", marginLeft: "10px" }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-                <div></div>
-              </div>
-
-              <div></div>
-            </div>
-
-            {/* {collections && <ListView collections={collections?.collections} />} */}
-          </div>
-          <br />
-          <br />
-          <br />
-          <br />
-        </div>
-      )}
     </>
   );
 };

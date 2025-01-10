@@ -9,8 +9,6 @@ import { RootState, AppDispatch } from "../redux/store";
 import { addMessage } from "../redux/slices/chatSlices";
 import { useFetch } from "../hook/useFetch";
 
-import Sandbox from "../components/Sandbox";
-
 const Chat: React.FC = () => {
   const chatHistory = useSelector((state: RootState) => state.chat.value);
   const fetchData = useFetch();
@@ -18,9 +16,9 @@ const Chat: React.FC = () => {
 
   const [loading, setLoading] = React.useState<boolean>(false);
 
-  const onsubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
-    setLoading(true);
+  const onsubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     const formData = new FormData(e.currentTarget);
     const query = formData.get("query");
 
@@ -36,52 +34,42 @@ const Chat: React.FC = () => {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
-    const raw = JSON.stringify({
-      question: query,
-    });
+    const raw = JSON.stringify({ question: query });
 
     const requestOptions: RequestInit = {
       method: "POST",
       headers: myHeaders,
       body: raw,
-      redirect: "follow" as RequestRedirect,
+      redirect: "follow",
     };
 
-    fetchData(QUERY, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        dispatch(
-          addMessage({
-            id: new Date().getTime(),
-            type: "llm",
-            message: result,
-            time: new Date().toLocaleTimeString(),
-          })
-        );
-
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error(error);
-        setLoading(false);
-      });
-    (e.target as HTMLFormElement).query.value = "";
+    try {
+      const response = await fetchData(QUERY, requestOptions);
+      const result = await response.json();
+      dispatch(
+        addMessage({
+          id: new Date().getTime(),
+          type: "llm",
+          message: result,
+          time: new Date().toLocaleTimeString(),
+        })
+      );
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+      (e.target as HTMLFormElement).query.value = "";
+    }
   };
 
-  //   React.useEffect(() => {
-  //     const chatScrollHolder = document.querySelector(".chat-scrollhldr");
-  //     if (chatScrollHolder) {
-  //       chatScrollHolder.scrollTop = chatScrollHolder.scrollHeight;
-  //     }
-  //   }, [chatHistory]);
   const startNewProcess = () => {
     localStorage.removeItem("chatData");
     window.location.reload();
   };
+
   return (
     <>
       <h2>Chat</h2>
-
       <div className="chat-hldr">
         <div className="chat-scrollhldr">
           <div
@@ -102,7 +90,7 @@ const Chat: React.FC = () => {
               <button
                 className="newConversationButton"
                 style={{ width: "100px", height: 20 }}
-                onClick={() => startNewProcess()}
+                onClick={startNewProcess}
               >
                 Start new
                 <img
@@ -134,16 +122,15 @@ const Chat: React.FC = () => {
                   alt="Clear Chat"
                 />
               </button>
-
               <p style={{ fontSize: 10 }}>
-                * generated data will be base on selected collection only
+                * generated data will be based on selected collection only
               </p>
             </div>
           </div>
           <WelcomeChatComp />
           <div className="chat-msg">
-            {chatHistory.map((chat: any, index) => {
-              return chat.type === "user" ? (
+            {chatHistory.map((chat: any, index) =>
+              chat.type === "user" ? (
                 <UserChat chat={chat} key={chat.id} />
               ) : (
                 <LlmReply
@@ -152,14 +139,14 @@ const Chat: React.FC = () => {
                   key={chat.id}
                   userQuestion={chatHistory[index - 1]}
                 />
-              );
-            })}
+              )
+            )}
             {loading && <Loader />}
           </div>
         </div>
 
         <form
-          onSubmit={(e) => onsubmitHandler(e)}
+          onSubmit={onsubmitHandler}
           style={{ gridColumn: "span 4", marginBottom: "20px" }}
         >
           <div className="Input-Container">
@@ -180,14 +167,6 @@ const Chat: React.FC = () => {
           </div>
         </form>
       </div>
-
-      <button className="newConversationButton">
-        Clear Chat
-        <img
-          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAAAXNSR0IArs4c6QAAAqBJREFUWAm1WLuRAjEMpQRKuAYogIyIAiiAuRgSIghhhgIoAGaOkOwIyKEDLoQcYlk0sHdvx1qMd621ObgZj9a29PQsyR+u0Uj4I6ImEY2Y+csYc2RmYubMNsKYMeabiD6J6CMBOk6ViDrGmL3jVJyr0pLqxHlRtLCqZwj4hC2h5yJkU+CGXl2977yiT8BU1l2e+gOZVgD9l4jYT8seK0beTCKOjE2HKKvyfD5n4/H4oV2vV9XGjXIwTShMbzuqoIfDIWu1Wlm3283a7Xb+jTHXWc03aqZcwKjsGsMHJ0IE0v1OwbjdbvuH6sA5kQIAXde5+52KA98FGSLaagCn0ynz2263K9IhRDabTUkPdhp2ERVbG0FlAKEWQg0khEhIp44Mro4G7gWNsRDBDsGK/YZ57BZ/HH3YgFwEkRGI1KYFYADWCFfNwSaGCC7RBjPjFg06kYhMJpPKVVdFQsZgE0nkCCLqfSJEAPhsizjoCESC0ZA52SHL5TIvTClQTUIXxGNTGkVEQCNWVixKIglbWZAma1MD4/l8nh/jAoQIDYfDkoPBYJBhTvRw9MNW+orMU6MWK4z7/X7eBGixWOR3jPRF+qmAXa/XiyFyxPZdC1BI+iuLJeJHMoTPzFsQwWM4yBp1gZXCOfKOBge4daUvEnqr1aoYhw3GMK/5wKEKIk1Nqe74hqO6BgzNR/EcwMUTUkREUIBySD0jL5eLRmTr3r7Jz4AQ8dTxh2cAGGlRSQVP0L9HQ8JinwPqcZ/gQEuFzFU/FUGobge9mIj+G4eZZy92KBFw5Uwyoco3k4kjIQxtml5ZM8DS0yHOfWkLWH3BxaTRGHMoDi3fSUrf/txIJmQJ3H8upDjVdLEq+9jeGmN+vNcd/lGDsTXSmr/MNTBv7hffBPEsHKEseQAAAABJRU5ErkJggg=="
-          alt="Clear Chat"
-        />
-      </button>
     </>
   );
 };
