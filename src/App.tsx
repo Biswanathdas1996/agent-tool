@@ -2,7 +2,7 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 
 // import Home from "./pages/Home";
-import Chat from "./pages/Chat";
+
 import ChatWithUnstructure from "./pages/ChatWithUnstructure";
 import CodeReview from "./pages/CodeReview";
 import CodeDoc from "./pages/CodeDoc";
@@ -12,7 +12,7 @@ import Layout from "./layout/index";
 import SimpleAlert from "./components/Alert";
 import PageLoader from "./components/PageLoader";
 // -------------user stoty use case---------------
-import UserStoryGeneration from "./pages/Code/UserStoryGeneration";
+import UserStoryGeneration from "./pages/UserStoryGeneration";
 import Backlog from "./pages/Code/Backlog";
 import Upload from "./pages/Upload";
 import Config from "./pages/Config";
@@ -27,7 +27,7 @@ function App() {
         <Routes>
           {/* <Route path="/" element={<Home />} /> */}
           <Route path="/" element={<></>} />
-          <Route path="/sql-chat" element={<Chat />} />
+
           <Route path="/data-chat" element={<ChatWithUnstructure />} />
           <Route path="/code-review" element={<CodeReview />} />
           <Route path="/code-doc" element={<CodeDoc />} />

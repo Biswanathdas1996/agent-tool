@@ -1,15 +1,11 @@
 import React, { useEffect } from "react";
-import WelcomeChatComp from "../../components/WelcomeChatComp";
-
-import Loader from "../../components/Loader";
-
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
+import WelcomeChatComp from "../components/WelcomeChatComp";
+import Loader from "../components/Loader";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
-import { useAlert } from "../../hook/useAlert";
+import { useAlert } from "../hook/useAlert";
 import AceEditor from "react-ace";
 import {
   CALL_GPT,
@@ -20,27 +16,25 @@ import {
   UPDATE_DATA_TO_MONGO_BY_ID,
   AGENTIC_API,
   DEPLOY_CODE,
-} from "../../config";
+} from "../config";
 // Import a theme and language
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/worker-javascript";
 import "ace-builds/src-noconflict/theme-monokai";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import RateReviewIcon from "@mui/icons-material/RateReview";
-import CreateUserStory from "./components/CreateUserStory";
-import CreateTestCases from "./components/CreateTestCases";
-import CreateTestData from "./components/CreateTestData";
+import CreateUserStory from "./Code/components/CreateUserStory";
+import CreateTestCases from "./Code/components/CreateTestCases";
+import CreateTestData from "./Code/components/CreateTestData";
 import TextFieldsIcon from "@mui/icons-material/TextFields";
-import AutoCompleteInput from "../../components/SelectCollection";
-
-import ContextData from "./components/ContextData";
-import ContextFromMongo from "./components/ContextFromMongo";
-import BoldText from "./components/BoldText";
-import ViewStory from "../../layout/ViewStory";
-import { useFetch } from "../../hook/useFetch";
-import CodeTables from "./components/CodeTables";
-
-import SandBox from "../../components/Sandbox";
+import AutoCompleteInput from "../components/SelectCollection";
+import ContextFromMongo from "./Code/components/ContextFromMongo";
+import BoldText from "./Code/components/BoldText";
+import ViewStory from "../layout/ViewStory";
+import { useFetch } from "../hook/useFetch";
+import CodeTables from "./Code/components/CodeTables";
+import CreateTestScript from "./Code/components/CreateTestScript";
+import CreateCode from "./Code/components/CreateCode";
 
 interface Result {
   page_number: number;
@@ -742,81 +736,13 @@ const Chat: React.FC = () => {
               testScript={() => (
                 <>
                   {testData && (
-                    <>
-                      <div>
-                        <h2>Test Script</h2>
-
-                        <FormControl fullWidth>
-                          <div style={{ display: "flex" }}>
-                            <div style={{ marginRight: 10, padding: 7 }}>
-                              <InputLabel id="demo-simple-select-label">
-                                Select language for test scripts
-                              </InputLabel>
-                              <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                value={testScriptLang}
-                                label="Age"
-                                onChange={(event: SelectChangeEvent<string>) =>
-                                  setTestScriptLang(event.target.value)
-                                }
-                                size="small"
-                                style={{ width: "300px" }}
-                              >
-                                <MenuItem value={"Java Selenium"}>
-                                  Java Selenium
-                                </MenuItem>
-                                <MenuItem value={"Python Selenium"}>
-                                  Python Selenium
-                                </MenuItem>
-                                <MenuItem value={"Robot Framework"}>
-                                  Robot Framework
-                                </MenuItem>
-                                <MenuItem value={"Cypress"}>Cypress</MenuItem>
-                                <MenuItem value={"WebDriver IO"}>
-                                  WebDriver IO
-                                </MenuItem>
-                                <MenuItem value={"Playwright"}>
-                                  Playwright
-                                </MenuItem>
-                              </Select>
-                            </div>
-                            <button
-                              className="newConversationButton"
-                              style={{ width: "130px" }}
-                              onClick={() => generateTestScript()}
-                            >
-                              Generate test script
-                              <img
-                                src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAAAXNSR0IArs4c6QAAAqBJREFUWAm1WLuRAjEMpQRKuAYogIyIAiiAuRgSIghhhgIoAGaOkOwIyKEDLoQcYlk0sHdvx1qMd621ObgZj9a29PQsyR+u0Uj4I6ImEY2Y+csYc2RmYubMNsKYMeabiD6J6CMBOk6ViDrGmL3jVJyr0pLqxHlRtLCqZwj4hC2h5yJkU+CGXl2977yiT8BU1l2e+gOZVgD9l4jYT8seK0beTCKOjE2HKKvyfD5n4/H4oV2vV9XGjXIwTShMbzuqoIfDIWu1Wlm3283a7Xb+jTHXWc03aqZcwKjsGsMHJ0IE0v1OwbjdbvuH6sA5kQIAXde5+52KA98FGSLaagCn0ynz2263K9IhRDabTUkPdhp2ERVbG0FlAKEWQg0khEhIp44Mro4G7gWNsRDBDsGK/YZ57BZ/HH3YgFwEkRGI1KYFYADWCFfNwSaGCC7RBjPjFg06kYhMJpPKVVdFQsZgE0nkCCLqfSJEAPhsizjoCESC0ZA52SHL5TIvTClQTUIXxGNTGkVEQCNWVixKIglbWZAma1MD4/l8nh/jAoQIDYfDkoPBYJBhTvRw9MNW+orMU6MWK4z7/X7eBGixWOR3jPRF+qmAXa/XiyFyxPZdC1BI+iuLJeJHMoTPzFsQwWM4yBp1gZXCOfKOBge4daUvEnqr1aoYhw3GMK/5wKEKIk1Nqe74hqO6BgzNR/EcwMUTUkREUIBySD0jL5eLRmTr3r7Jz4AQ8dTxh2cAGGlRSQVP0L9HQ8JinwPqcZ/gQEuFzFU/FUGobge9mIj+G4eZZy92KBFw5Uwyoco3k4kjIQxtml5ZM8DS0yHOfWkLWH3BxaTRGHMoDi3fSUrf/txIJmQJ3H8upDjVdLEq+9jeGmN+vNcd/lGDsTXSmr/MNTBv7hffBPEsHKEseQAAAABJRU5ErkJggg=="
-                                alt="Clear Chat"
-                              />
-                            </button>
-                          </div>
-                        </FormControl>
-                      </div>
-                      <br />
-                      <br />
-                      {testScript && (
-                        <AceEditor
-                          key="testScript"
-                          mode="javascript"
-                          theme="monokai"
-                          value={testScript}
-                          onChange={(newValue) => {
-                            setTestScript(newValue);
-                            localStorage.setItem("testScript", newValue);
-                          }}
-                          setOptions={{
-                            useWorker: false,
-                          }}
-                          editorProps={{ $blockScrolling: true }}
-                          //   height="400px"
-                          width="100%"
-                          style={{ padding: 10, borderRadius: 15 }}
-                        />
-                      )}
-                    </>
+                    <CreateTestScript
+                      testScriptLang={testScriptLang}
+                      setTestScriptLang={setTestScriptLang}
+                      generateTestScript={generateTestScript}
+                      testScript={testScript || ""}
+                      setTestScript={setTestScript}
+                    />
                   )}
                   {testScriptLoading && (
                     <Loader text="Generating test script" />
@@ -825,61 +751,14 @@ const Chat: React.FC = () => {
               )}
               codeData={() => (
                 <>
-                  {testScript && (
-                    <>
-                      <h2>Choose coding language</h2>
-                      <FormControl fullWidth>
-                        <div style={{ display: "flex" }}>
-                          <div style={{ marginRight: 10, padding: 7 }}>
-                            <InputLabel id="demo-simple-select-label">
-                              Select language
-                            </InputLabel>
-                            <Select
-                              labelId="demo-simple-select-label"
-                              id="demo-simple-select"
-                              value={codeLang}
-                              label="Age"
-                              onChange={handleChange}
-                              size="small"
-                              style={{ width: "300px" }}
-                            >
-                              <MenuItem value={"React JS"}>React JS</MenuItem>
-                              <MenuItem value={"Python"}>Python</MenuItem>
-                              <MenuItem value={"HTML"}>HTML</MenuItem>
-                              <MenuItem value={"Kotlin"}>Kotlin</MenuItem>
-                              <MenuItem value={"Apex"}>
-                                Apex (Salesforce)
-                              </MenuItem>
-                            </Select>
-                          </div>
-                          <button
-                            className="newConversationButton"
-                            style={{ width: "130px" }}
-                            onClick={() => generateCode()}
-                          >
-                            Generate code
-                            <img
-                              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAAAXNSR0IArs4c6QAAAqBJREFUWAm1WLuRAjEMpQRKuAYogIyIAiiAuRgSIghhhgIoAGaOkOwIyKEDLoQcYlk0sHdvx1qMd621ObgZj9a29PQsyR+u0Uj4I6ImEY2Y+csYc2RmYubMNsKYMeabiD6J6CMBOk6ViDrGmL3jVJyr0pLqxHlRtLCqZwj4hC2h5yJkU+CGXl2977yiT8BU1l2e+gOZVgD9l4jYT8seK0beTCKOjE2HKKvyfD5n4/H4oV2vV9XGjXIwTShMbzuqoIfDIWu1Wlm3283a7Xb+jTHXWc03aqZcwKjsGsMHJ0IE0v1OwbjdbvuH6sA5kQIAXde5+52KA98FGSLaagCn0ynz2263K9IhRDabTUkPdhp2ERVbG0FlAKEWQg0khEhIp44Mro4G7gWNsRDBDsGK/YZ57BZ/HH3YgFwEkRGI1KYFYADWCFfNwSaGCC7RBjPjFg06kYhMJpPKVVdFQsZgE0nkCCLqfSJEAPhsizjoCESC0ZA52SHL5TIvTClQTUIXxGNTGkVEQCNWVixKIglbWZAma1MD4/l8nh/jAoQIDYfDkoPBYJBhTvRw9MNW+orMU6MWK4z7/X7eBGixWOR3jPRF+qmAXa/XiyFyxPZdC1BI+iuLJeJHMoTPzFsQwWM4yBp1gZXCOfKOBge4daUvEnqr1aoYhw3GMK/5wKEKIk1Nqe74hqO6BgzNR/EcwMUTUkREUIBySD0jL5eLRmTr3r7Jz4AQ8dTxh2cAGGlRSQVP0L9HQ8JinwPqcZ/gQEuFzFU/FUGobge9mIj+G4eZZy92KBFw5Uwyoco3k4kjIQxtml5ZM8DS0yHOfWkLWH3BxaTRGHMoDi3fSUrf/txIJmQJ3H8upDjVdLEq+9jeGmN+vNcd/lGDsTXSmr/MNTBv7hffBPEsHKEseQAAAABJRU5ErkJggg=="
-                              alt="Clear Chat"
-                            />
-                          </button>
-                        </div>
-                      </FormControl>
-                      <br />
-                      {codeLoading && (
-                        <Loader
-                          text={
-                            codeSuggestion
-                              ? "Fixing and refactoring code"
-                              : "Generating code"
-                          }
-                        />
-                      )}
-                      {codeSuggestionLoading && (
-                        <Loader text="Testing & analyse the code" />
-                      )}
-                    </>
-                  )}
+                  <CreateCode
+                    codeLang={codeLang}
+                    handleChange={handleChange}
+                    generateCode={generateCode}
+                    codeLoading={codeLoading}
+                    codeSuggestion={codeSuggestion}
+                    codeSuggestionLoading={codeSuggestionLoading}
+                  />
                   <br />
 
                   {code && (
