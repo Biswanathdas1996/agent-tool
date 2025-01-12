@@ -1,4 +1,4 @@
-from gpt.index import call_gpt
+from Gpt.index import call_gpt
 from helper.utils import convert_to_json, convert_string_to_json
 
 sample_output = [

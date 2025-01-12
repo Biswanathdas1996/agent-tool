@@ -1,7 +1,7 @@
 import os
 from flask import request, jsonify
 from bson import ObjectId
-from mongodb.client import get_Client
+from Mongodb.client import get_Client
 
 
 def get_collection():

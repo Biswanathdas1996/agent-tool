@@ -5,7 +5,7 @@ import os
 from pymongo.operations import SearchIndexModel
 import time
 from flask import request, jsonify
-from mongodb.client import get_Client
+from Mongodb.client import get_Client
 
 
 def get_collection(collection_name):
