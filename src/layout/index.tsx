@@ -28,7 +28,7 @@ const iconStyle = {
 };
 const routes = [
   {
-    path: "/home",
+    path: "/",
     name: "Home",
     icon: () => <HomeIcon style={iconStyle} />,
   },

@@ -46,14 +46,12 @@ const Chat: React.FC = () => {
 
   const [loading, setLoading] = React.useState(false);
   const [finsContextLoadding, setFinsContextLoadding] = React.useState(false);
-
   const [imageUploadLoading, setImageUploadLoading] = React.useState(false);
   const [userStoryLoading, setUserStoryLoading] = React.useState(false);
   const [testCaseLoading, setTestCaseLoading] = React.useState(false);
   const [testDataLoading, setTestDataLoading] = React.useState(false);
   const [testScriptLoading, setTestScriptLoading] = React.useState(false);
   const [codeLoading, setCodeLoading] = React.useState(false);
-
   const [userQuery, setUserQuery] = React.useState<string | null>(null);
   const [userStory, setUserStory] = React.useState<string | null>(null);
   const [testCase, setTestCase] = React.useState<string | null>(null);
@@ -62,7 +60,6 @@ const Chat: React.FC = () => {
   const [file, setFile] = React.useState<File | null>(null);
   const [deployedUrl, setDeployedUrl] = React.useState<string | null>(null);
   const [uploadFile, setUploadFile] = React.useState<boolean>(false);
-
   const [contextDataForStory, setContextDataForStory] =
     React.useState<any>(null);
   const [code, setCode] = React.useState<string | null>(null);
@@ -72,7 +69,6 @@ const Chat: React.FC = () => {
   const [codeSuggestionLoading, setCodeSuggestionLoading] =
     React.useState<boolean>(false);
   const { triggerAlert } = useAlert();
-
   const [codeLang, setCodeLang] = React.useState("");
   const [testScriptLang, setTestScriptLang] = React.useState("");
   const urlParams = new URLSearchParams(window.location.hash.split("?")[1]);
@@ -85,126 +81,106 @@ const Chat: React.FC = () => {
     }
   };
 
-  const getInstructions = (instructionForUserStories: string) => {
-    const config = JSON.parse(localStorage.getItem("config") || "{}");
-    const instructions = config[instructionForUserStories] || [];
-    const concatenatedInstructions = instructions.map(
-      (instruction: any, index: number) =>
-        `\n ${index + 1}: ${instruction.value}`
-    );
-    return concatenatedInstructions.join("");
+  const getInstructions = (instructionKey: string) => {
+    try {
+      const config = JSON.parse(localStorage.getItem("config") || "{}");
+      const instructions = config[instructionKey] || [];
+      return instructions
+        .map(
+          (instruction: any, index: number) =>
+            `\n ${index + 1}: ${instruction.value}`
+        )
+        .join("");
+    } catch (error) {
+      console.error("Error getting instructions:", error);
+      triggerAlert("Failed to get instructions", "error");
+      return "";
+    }
   };
 
   const getContext = async (query: string) => {
     setFinsContextLoadding(true);
-    const myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
 
-    const raw = JSON.stringify({
-      query: query,
-      collection_name: localStorage.getItem("selected_collection"),
-      no_of_results: 10,
-      fine_chunking: false,
-      if_gpt_summarize: false,
-    });
-
-    const requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow" as RequestRedirect,
-    };
-
-    return fetchData(SEARCH, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setFinsContextLoadding(false);
-
-        return result;
-      })
-      .catch((error) => {
-        setFinsContextLoadding(false);
+      const raw = JSON.stringify({
+        query: query,
+        collection_name: localStorage.getItem("selected_collection"),
+        no_of_results: 10,
+        fine_chunking: false,
+        if_gpt_summarize: false,
       });
+
+      const requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow" as RequestRedirect,
+      };
+
+      const result = await fetchData(SEARCH, requestOptions).then((response) =>
+        response.json()
+      );
+      console.log(result);
+      return result;
+    } catch (error) {
+      console.error("Error fetching context:", error);
+      triggerAlert("Failed to fetch context", "error");
+      return null;
+    } finally {
+      setFinsContextLoadding(false);
+    }
   };
 
   const saveDataToLocalStorage = async () => {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     window.pageLoader(true);
-    if (taskId) {
-      const requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: JSON.stringify({
-          data: {
-            storyid: new Date().getTime(),
-            sprint: "backlog",
-            userQuery,
-            userStory,
-            testCase,
-            testData,
-            code,
-            testScript,
-            contextData: contextDataForStory,
-          },
-          id: taskId,
-        }),
-        redirect: "follow",
-      };
-      await fetchData(UPDATE_DATA_TO_MONGO_BY_ID, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
-          triggerAlert("Ticket updated Successfully !", "success");
-          window.pageLoader(false);
-          return data;
-        })
-        .catch((error) => {
-          window.pageLoader(false);
-          console.error("Error:", error);
 
-          triggerAlert(JSON.stringify(error), "error");
-          return error;
-        });
-    } else {
-      const requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: JSON.stringify({
-          data: {
-            storyid: new Date().getTime(),
-            sprint: "backlog",
-            userQuery,
-            userStory,
-            testCase,
-            testData,
-            code,
-            testScript,
-            contextData: contextDataForStory,
-          },
-        }),
-        redirect: "follow",
-      };
-      await fetchData(INSERT_DATA_TO_MONGO, requestOptions)
-        .then((response) => response.json())
-        .then((data) => {
-          window.pageLoader(false);
-          triggerAlert(
-            "Ticket created Successfully & pushed to backlog!",
-            "success"
-          );
-          return data;
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-          window.pageLoader(false);
-          triggerAlert(JSON.stringify(error), "error");
-          return error;
-        });
-      window.location.href = "#/backlog";
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: JSON.stringify({
+        data: {
+          storyid: new Date().getTime(),
+          sprint: "backlog",
+          userQuery,
+          userStory,
+          testCase,
+          testData,
+          code,
+          testScript,
+          contextData: contextDataForStory,
+        },
+        id: taskId,
+      }),
+      redirect: "follow",
+    };
+
+    try {
+      const url = taskId ? UPDATE_DATA_TO_MONGO_BY_ID : INSERT_DATA_TO_MONGO;
+      const response = await fetchData(url, requestOptions);
+      const data = await response.json();
+
+      if (taskId) {
+        triggerAlert("Ticket updated Successfully!", "success");
+      } else {
+        triggerAlert(
+          "Ticket created Successfully & pushed to backlog!",
+          "success"
+        );
+        window.location.href = "#/backlog";
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Error:", error);
+      triggerAlert(JSON.stringify(error), "error");
+      return error;
+    } finally {
+      window.pageLoader(false);
     }
-
-    // -------------------------------------------------------------------------------------------
   };
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -213,29 +189,27 @@ const Chat: React.FC = () => {
 
   const callGpt = async (query: string): Promise<string | null> => {
     setLoading(true);
-    const response = await fetchData(CALL_GPT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        question: query,
-      }),
-    })
-      .then((response) => response.text())
-      .then((data) => {
-        setLoading(false);
-        return data;
-      })
-      .catch((error) => {
-        triggerAlert(JSON.stringify(error), "error");
-        setLoading(false);
-        return error;
+    try {
+      const response = await fetchData(CALL_GPT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          question: query,
+        }),
       });
-    return response;
+      const data = await response.text();
+      return data;
+    } catch (error) {
+      triggerAlert(JSON.stringify(error), "error");
+      return null;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleUpload = (e: any) => {
+  const handleUpload = async (e: any) => {
     e.preventDefault();
     if (!file) {
       console.error("No file selected");
@@ -249,7 +223,6 @@ const Chat: React.FC = () => {
       return;
     }
 
-    console.log("model", model);
     if (model !== "gpt-4o" && model !== "gpt-4o-mini") {
       triggerAlert(
         `Please select gpt-4o / gpt-4o-mini for image processing `,
@@ -262,169 +235,209 @@ const Chat: React.FC = () => {
     const formdata = new FormData();
     formdata.append("file", file);
 
-    const requestOptions = {
+    const requestOptions: RequestInit = {
       method: "POST",
       body: formdata,
       redirect: "follow" as RequestRedirect,
     };
 
-    fetchData(EXTRACT_IMAGE_TO_TEXT, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        generateUserStory(result?.details);
-        setImageUploadLoading(false);
-      })
-      .catch((error) => {
-        console.error(error);
-        setImageUploadLoading(false);
-      });
+    try {
+      const response = await fetchData(EXTRACT_IMAGE_TO_TEXT, requestOptions);
+      const result = await response.json();
+      console.log(result);
+      await generateUserStory(result?.details);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      triggerAlert("Failed to upload file", "error");
+    } finally {
+      setImageUploadLoading(false);
+    }
   };
 
-  const onsubmitHandler = async (e: any) => {
+  const onsubmitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const query = e.target.query.value;
-
+    const query = (e.target as any).query.value;
     generateUserStory(query);
   };
 
   const generateUserStory = async (query: string) => {
-    if (query.length === 0) return;
+    if (!query) return;
     setUserQuery(query);
 
-    const contextData = await getContext(query);
-    setUserStoryLoading(true);
+    try {
+      const contextData = await getContext(query);
+      setUserStoryLoading(true);
+      setContextDataForStory(contextData);
+      localStorage.setItem("userQuery", query);
+      localStorage.setItem("contextData", JSON.stringify(contextData));
 
-    localStorage.setItem("userQuery", query as string);
-    localStorage.setItem("contextData", JSON.stringify(contextData));
-    setContextDataForStory(contextData);
-    const effectiveContext = contextData?.results
-      .map((item: Result) => item.text)
-      .join(" ");
-    // const effectiveContext = JSON.stringify(contextData?.results?.documents);
-    // const effectiveContext = contextData?.results?.gpt_results;
-    // const effectiveContext = contextData?.results?.fine_results;
-    const instructionForUserStories = getInstructions(
-      "instructionForUserStories"
-    );
-    const userStorydata = await callGpt(`
+      const effectiveContext = contextData?.results
+        .map((item: Result) => item.text)
+        .join(" ");
+      const instructionForUserStories = getInstructions(
+        "instructionForUserStories"
+      );
+
+      const userStoryData = await callGpt(`
         Write an elaborate agile user story in Gherkin format for ${query}
         Include Acceptance Criteria, Assumptions, and Dependencies
         ${instructionForUserStories}
-       
-        
         Context of the story should be: ${effectiveContext}
-
         Do not add any point that is not related to the context
-        `);
-    setUserStory(userStorydata);
-    userStorydata && localStorage.setItem("userStory", userStorydata);
-    setUserStoryLoading(false);
-    return userStorydata;
+      `);
+
+      setUserStory(userStoryData);
+      if (userStoryData) {
+        localStorage.setItem("userStory", userStoryData);
+      }
+    } catch (error) {
+      console.error("Error generating user story:", error);
+      triggerAlert("Failed to generate user story", "error");
+    } finally {
+      setUserStoryLoading(false);
+    }
   };
 
   const generateTestCases = async () => {
-    // if (!userStory) return;
     setTestCaseLoading(true);
-    const instructionForTestCases = getInstructions("instructionForTestCases");
+    try {
+      const instructionForTestCases = getInstructions(
+        "instructionForTestCases"
+      );
 
-    const testcaseData = await callGpt(
-      `
-      UserStory: 
-      ${userStory}
+      const testcaseData = await callGpt(
+        `
+        UserStory: 
+        ${userStory}
 
-      generate test cases for the above user story
+        generate test cases for the above user story
 
-      Follow the instructions: 
-      ${instructionForTestCases}
-      `
-    );
-    setTestCase(testcaseData);
-    testcaseData && localStorage.setItem("testcase", testcaseData);
-    setTestCaseLoading(false);
-    return testcaseData;
+        Follow the instructions: 
+        ${instructionForTestCases}
+        `
+      );
+
+      setTestCase(testcaseData);
+      if (testcaseData) {
+        localStorage.setItem("testcase", testcaseData);
+      }
+      return testcaseData;
+    } catch (error) {
+      console.error("Error generating test cases:", error);
+      triggerAlert("Failed to generate test cases", "error");
+      return null;
+    } finally {
+      setTestCaseLoading(false);
+    }
   };
 
   const generateTestData = async () => {
     setTestDataLoading(true);
-    // if (!testCase) return;
-    const instructionForTestData = getInstructions("instructionForTestData");
+    try {
+      const instructionForTestData = getInstructions("instructionForTestData");
 
-    const testcaseData = await callGpt(
-      `
-      TestCase: 
-      ${testCase}
+      const testcaseData = await callGpt(
+        `
+        TestCase: 
+        ${testCase}
 
-       Generate a HTML code of sample sets of test data for the above TestCase 
-      
+        Generate a HTML code of sample sets of test data for the above TestCase 
 
-      Follow the instructions: 
-      ${instructionForTestData}
-      `
-    );
-    setTestData(testcaseData);
-    testcaseData && localStorage.setItem("testdata", testcaseData);
-    setTestDataLoading(false);
-    return testcaseData;
+        Follow the instructions: 
+        ${instructionForTestData}
+        `
+      );
+
+      setTestData(testcaseData);
+      if (testcaseData) {
+        localStorage.setItem("testdata", testcaseData);
+      }
+      return testcaseData;
+    } catch (error) {
+      console.error("Error generating test data:", error);
+      triggerAlert("Failed to generate test data", "error");
+      return null;
+    } finally {
+      setTestDataLoading(false);
+    }
   };
 
   const generateTestScript = async () => {
-    // if (!testCase) return;
     setTestScriptLoading(true);
-    const instructionForTestScript = getInstructions(
-      "instructionForTestScript"
-    );
+    try {
+      const instructionForTestScript = getInstructions(
+        "instructionForTestScript"
+      );
 
-    const testScriptData = await callGpt(`
-      Generate sample Test script code example in ${testScriptLang} for the  user story of :  ${userStory} \n that supports the bellow test cases\n ${testCase}
-      Use ${testData} as test data
+      const testScriptData = await callGpt(`
+        Generate sample Test script code example in ${testScriptLang} for the user story of: ${userStory} 
+        that supports the below test cases: ${testCase}
+        Use ${testData} as test data
 
-      Follow the instructions: 
-      ${instructionForTestScript}
+        Follow the instructions: 
+        ${instructionForTestScript}
       `);
-    setTestScript(testScriptData);
-    testScriptData && localStorage.setItem("testScript", testScriptData);
-    setTestScriptLoading(false);
-    return testScriptData;
+
+      setTestScript(testScriptData);
+      if (testScriptData) {
+        localStorage.setItem("testScript", testScriptData);
+      }
+      return testScriptData;
+    } catch (error) {
+      console.error("Error generating test script:", error);
+      triggerAlert("Failed to generate test script", "error");
+      return null;
+    } finally {
+      setTestScriptLoading(false);
+    }
   };
 
   const generateCode = async (codeSuggestion?: string): Promise<any> => {
-    // if (!testData) return;
     setCodeLoading(true);
-    const instructionForCode = getInstructions("instructionForCode");
-    let prompt = "";
-    if (codeSuggestion) {
-      prompt = `
-      Refactor the code bellow as per the suggestions \n 
-      
-      Code: \n 
-      ${code}
-      \n 
-      that supports the bellow test cases\n ${testCase}  \n 
+    try {
+      const instructionForCode = getInstructions("instructionForCode");
+      let prompt = "";
 
-      Gennerate the full code that can be directly run on codesandbox \n 
-      
-      Suggestions: \n 
-      ${codeSuggestion} \n 
-      `;
-    } else {
-      prompt = `
-      Generate sample codes example in ${codeLang} for the  user story of :  ${userStory} \n that supports the bellow test cases\n ${testCase}
+      if (codeSuggestion) {
+        prompt = `
+          Refactor the code below as per the suggestions:
+          
+          Code: 
+          ${code}
+          
+          that supports the below test cases: ${testCase}  
+          
+          Generate the full code that can be directly run on codesandbox
+          
+          Suggestions: 
+          ${codeSuggestion}
+        `;
+      } else {
+        prompt = `
+          Generate sample code example in ${codeLang} for the user story of: ${userStory} 
+          that supports the below test cases: ${testCase}
 
-      Gennerate the full code that can be directly run on codesandbox
-      
-      Follow the instructions: 
-      ${instructionForCode}
-      `;
+          Generate the full code that can be directly run on codesandbox
+          
+          Follow the instructions: 
+          ${instructionForCode}
+        `;
+      }
+
+      const testCode = await callGpt(prompt);
+      setCode(testCode);
+
+      if (testCode) {
+        localStorage.setItem("code", testCode);
+      }
+      return testCode;
+    } catch (error) {
+      console.error("Error generating code:", error);
+      triggerAlert("Failed to generate code", "error");
+      return null;
+    } finally {
+      setCodeLoading(false);
     }
-    const testCode = await callGpt(prompt);
-    setCode(testCode);
-
-    testCode && localStorage.setItem("code", testCode);
-    setCodeLoading(false);
-
-    return testCode;
   };
 
   interface GenerateRevisedCodeResponse {
@@ -434,8 +447,39 @@ const Chat: React.FC = () => {
   const generateRevisedCode = async (code: string): Promise<void> => {
     setCodeSuggestionLoading(true);
 
+    try {
+      const formdata = new FormData();
+      formdata.append("code", JSON.stringify(code));
+
+      const requestOptions: RequestInit = {
+        method: "POST",
+        body: formdata,
+        redirect: "follow" as RequestRedirect,
+      };
+
+      const response = await fetchData(AGENTIC_API, requestOptions);
+      const result: GenerateRevisedCodeResponse = await response.json();
+
+      setCodeSuggestion(result?.validation_result);
+      await generateCode(result?.validation_result);
+    } catch (error) {
+      console.error("Error generating revised code:", error);
+      triggerAlert("Failed to generate revised code", "error");
+    } finally {
+      setCodeSuggestionLoading(false);
+    }
+  };
+
+  const deploy_Code = async () => {
+    if (!code) return;
+    if (codeLang !== "HTML") {
+      triggerAlert("We only support HTML deploy for now", "error");
+      return;
+    }
+
+    window.pageLoader(true);
     const formdata = new FormData();
-    formdata.append("code", JSON.stringify(code));
+    formdata.append("code", code);
 
     const requestOptions: RequestInit = {
       method: "POST",
@@ -443,48 +487,18 @@ const Chat: React.FC = () => {
       redirect: "follow" as RequestRedirect,
     };
 
-    fetchData(AGENTIC_API, requestOptions)
-      .then((response) => response.json())
-      .then((result: GenerateRevisedCodeResponse) => {
-        setCodeSuggestion(result?.validation_result);
-        generateCode(result?.validation_result);
-        setCodeSuggestionLoading(false);
-      })
-      .catch((error: any) => {
-        console.log("error", error);
-        setCodeSuggestionLoading(false);
-      });
-  };
-
-  const deploy_Code = async () => {
-    if (!code) return;
-    if (codeLang !== "HTML") {
-      triggerAlert("We only support HTML deploy for now", "error");
+    try {
+      const response = await fetch(DEPLOY_CODE, requestOptions);
+      const result = await response.json();
+      console.log(result);
+      setDeployedUrl(result.url);
+      triggerAlert("Code deployed successfully!", "success");
+    } catch (error) {
+      console.error("Error deploying code:", error);
+      triggerAlert("Failed to deploy code", "error");
+    } finally {
+      window.pageLoader(false);
     }
-
-    window.pageLoader(true);
-    var formdata = new FormData();
-    formdata.append("code", code);
-
-    var requestOptions: RequestInit = {
-      method: "POST",
-      body: formdata,
-      redirect: "follow" as RequestRedirect,
-    };
-
-    fetch(DEPLOY_CODE, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        setDeployedUrl(result.url);
-        triggerAlert("Code deployed successfully !", "success");
-        window.pageLoader(false);
-      })
-      .catch((error) => {
-        console.log("error", error);
-        triggerAlert(error, "error");
-        window.pageLoader(false);
-      });
   };
 
   React.useEffect(() => {
@@ -524,73 +538,103 @@ const Chat: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    if (taskId) {
+    if (!taskId) {
+      startNewProcess();
+    }
+  }, [taskId]);
+
+  React.useEffect(() => {
+    const fetchTaskData = async () => {
+      if (!taskId) return;
+
       window.pageLoader(true);
-      const raw = JSON.stringify({
-        id: taskId,
-      });
+      const raw = JSON.stringify({ id: taskId });
 
       const requestOptions: RequestInit = {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: raw,
         redirect: "follow" as RequestRedirect,
       };
 
-      fetchData(GET_DATA_BY_ID, requestOptions)
-        .then((response) => response.json())
-        .then((result) => {
-          console.log(result);
-          const task = result?.data;
-          if (task) {
-            localStorage.setItem("userStory", task.userStory);
-            localStorage.setItem("testcase", task.testCase);
-            localStorage.setItem("testScript", task.testScript);
-            localStorage.setItem("testdata", task.testData);
-            localStorage.setItem("userQuery", task.userQuery);
-            localStorage.setItem("code", task.code);
-            if (task?.contextData)
-              localStorage.setItem(
-                "contextData",
-                JSON.stringify(task?.contextData)
-              );
+      try {
+        const response = await fetchData(GET_DATA_BY_ID, requestOptions);
+        const result = await response.json();
+        const task = result?.data;
 
-            setUserStory(task.userStory);
-            setTestCase(task.testCase);
-            setTestData(task.testData);
-            setTestScript(task.testScript);
-            setCode(task.code);
-            setUserQuery(task.userQuery);
-            setContextDataForStory(task.contextData);
-          }
-          window.pageLoader(false);
-        })
-        .catch((error) => {
-          console.error(error);
-          window.pageLoader(false);
-          triggerAlert(JSON.stringify(error), "error");
-        });
-    }
+        if (task) {
+          const {
+            userStory,
+            testCase,
+            testScript,
+            testData,
+            userQuery,
+            code,
+            contextData,
+          } = task;
+
+          const localStorageData = {
+            userStory,
+            testCase,
+            testScript,
+            testData,
+            userQuery,
+            code,
+            contextData: contextData ? JSON.stringify(contextData) : null,
+          };
+
+          Object.entries(localStorageData).forEach(([key, value]) => {
+            if (value !== null) {
+              localStorage.setItem(key, value);
+            }
+          });
+
+          setUserStory(userStory);
+          setTestCase(testCase);
+          setTestData(testData);
+          setTestScript(testScript);
+          setCode(code);
+          setUserQuery(userQuery);
+          setContextDataForStory(contextData);
+        }
+      } catch (error) {
+        console.error("Error fetching task data:", error);
+        triggerAlert("Failed to fetch task data", "error");
+      } finally {
+        window.pageLoader(false);
+      }
+    };
+
+    fetchTaskData();
   }, []);
 
   const startNewProcess = () => {
-    localStorage.removeItem("userStory");
-    localStorage.removeItem("testcase");
-    localStorage.removeItem("testScript");
-    localStorage.removeItem("testdata");
-    localStorage.removeItem("code");
-    localStorage.removeItem("contextData");
-    localStorage.removeItem("userQuery");
-    setUserStory(null);
-    setTestCase(null);
-    setTestScript(null);
-    setTestData(null);
-    setCode(null);
-    setContextDataForStory(null);
-    setUserQuery(null);
-    window.location.href = "#/story";
+    try {
+      const keysToRemove = [
+        "userStory",
+        "testcase",
+        "testScript",
+        "testdata",
+        "code",
+        "contextData",
+        "userQuery",
+      ];
+
+      keysToRemove.forEach((key) => localStorage.removeItem(key));
+
+      setUserStory(null);
+      setTestCase(null);
+      setTestScript(null);
+      setTestData(null);
+      setCode(null);
+      setContextDataForStory(null);
+      setUserQuery(null);
+
+      window.location.href = "#/story";
+    } catch (error) {
+      console.error("Error starting new process:", error);
+      triggerAlert("Failed to start new process", "error");
+    }
   };
 
   return (
@@ -751,14 +795,16 @@ const Chat: React.FC = () => {
               )}
               codeData={() => (
                 <>
-                  <CreateCode
-                    codeLang={codeLang}
-                    handleChange={handleChange}
-                    generateCode={generateCode}
-                    codeLoading={codeLoading}
-                    codeSuggestion={codeSuggestion}
-                    codeSuggestionLoading={codeSuggestionLoading}
-                  />
+                  {testScript && (
+                    <CreateCode
+                      codeLang={codeLang}
+                      handleChange={handleChange}
+                      generateCode={generateCode}
+                      codeLoading={codeLoading}
+                      codeSuggestion={codeSuggestion}
+                      codeSuggestionLoading={codeSuggestionLoading}
+                    />
+                  )}
                   <br />
 
                   {code && (
