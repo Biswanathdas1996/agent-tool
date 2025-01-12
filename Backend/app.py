@@ -7,6 +7,7 @@ from AI_agents.app import render_ai_agent
 from Devops.index import render_deploy_agent
 from Code.index import render_code_review_agent
 from Gpt.index import render_gpt_pack
+from Azure_Cosmos.index import render_cosmos_pack
 from secretes.secrets import OPENAI_API_KEY
 
 def create_app():
@@ -25,7 +26,8 @@ def create_app():
     """
     app = Flask(__name__)
     
-    app = render_mongo_pack(app)
+    # app = render_mongo_pack(app)
+    app = render_cosmos_pack(app)
     app = render_mongo_data_pack(app)
     app = render_ai_agent(app)
     app = render_deploy_agent(app)
