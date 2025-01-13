@@ -1,6 +1,6 @@
 import os
 import google.generativeai as genai
-from project_keys.secrets import GEMINI_API_KEY, GOOGLE_MODEL_NAME
+from secretes.secrets import GEMINI_API_KEY, GOOGLE_MODEL_NAME
 
 model = genai.GenerativeModel(GOOGLE_MODEL_NAME)
 genai.configure(api_key=GEMINI_API_KEY)

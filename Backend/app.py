@@ -8,7 +8,7 @@ from Devops.index import render_deploy_agent
 from Code.index import render_code_review_agent
 from Gpt.index import render_gpt_pack
 from Azure_Cosmos.index import render_cosmos_pack
-from project_keys.secrets import OPENAI_API_KEY
+from secretes.secrets import OPENAI_API_KEY
 
 def create_app():
     """

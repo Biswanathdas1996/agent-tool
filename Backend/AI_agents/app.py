@@ -1,6 +1,6 @@
 import os
 from flask import request, jsonify, Flask
-from project_keys.secrets import OPENAI_API_KEY
+from secretes.secrets import OPENAI_API_KEY
 from langchain.agents import initialize_agent, Tool, AgentType
 from langchain_community.chat_models import ChatOpenAI
 from langchain.schema import ChatMessage

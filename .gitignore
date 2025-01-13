@@ -133,5 +133,8 @@ dist
 .pnp.*
 
 # Secrets file
-Backend/project_keys
+
 Backend/secretes
+
+
+**/__pycache__/
