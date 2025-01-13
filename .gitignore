@@ -1,6 +1,7 @@
 node_modules
 Backend/AgentVenv/
-__pycache__/
+
+
 # Logs
 logs
 *.log
@@ -138,3 +139,4 @@ Backend/secretes
 
 
 **/__pycache__/
+
