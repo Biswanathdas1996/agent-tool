@@ -1,6 +1,6 @@
 
 import uuid
-from secretes.secrets import NETLIFY_API_KEY
+from project_keys.secrets import NETLIFY_API_KEY
 
 import os
 import hashlib
