@@ -1,9 +1,131 @@
-Error analyzing code: 
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Quality Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        h1 {
+            color: #1e8bc3;
+        }
+        .section-header {
+            background-color: #1e8bc3;
+            color: white;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .issue-list {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #ffffff;
+        }
+        .issue {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .issue:last-child {
+            border-bottom: none;
+        }
+        .severity {
+            font-weight: bold;
+            color: #d9534f; /* Default red for high severity */
+        }
+        .recommendation {
+            font-weight: bold;
+        }
+        .description {
+            font-style: italic;
+        }
+        .suggestion {
+            margin-top: 5px;
+            padding-left: 15px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Code Quality Report</h1>
 
-You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.
+    <p><strong>Introduction:</strong> This report provides a detailed analysis of the provided Python code, focusing on identifying quality issues, correctness, security vulnerabilities, and suggestions for improvements. The code processes CSV files, loads them into an in-memory SQLite database, executes SQL queries, and formats the results.</p>
+    
+    <p><strong>Documentation:</strong> This code is designed to load multiple CSV files into a temporary SQLite database, execute SQL queries against this database, and return formatted results.  It also attempts to load an ERD from a JSON file.</p>
 
-You can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. 
+    <div class="section-header">Issues Found:</div>
+    <div class="issue-list">
+        <div class="issue">
+            <span class="severity">High Severity</span>
+            <p class="recommendation">Recommendation 1: Handle Exceptions More Gracefully</p>
+            <p class="description"><em>The code uses generic `except Exception as e:` blocks.  This is bad practice because it masks potential underlying issues and makes debugging difficult. Specific exceptions should be caught and handled appropriately.</em></p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Catch specific exceptions (e.g., `sqlite3.Error`, `FileNotFoundError`, `pd.errors.EmptyDataError`, `json.JSONDecodeError`) and handle them individually.  Provide more informative error messages to the user, potentially logging the error for debugging purposes.  Avoid using bare `except` blocks.
+            </div>
+        </div>
 
-Alternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`
+        <div class="issue">
+            <span class="severity">High Severity</span>
+            <p class="recommendation">Recommendation 2: SQL Injection Vulnerability</p>
+            <p class="description"><em>The `execute_query` function directly inserts user-supplied input into the SQL query using f-strings. This makes the code vulnerable to SQL injection attacks.</em></p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Use parameterized queries to prevent SQL injection.  Instead of `cursor.execute(f"SELECT * FROM {table_name}")`, use `cursor.execute("SELECT * FROM ?", (table_name,))`.  This ensures that the database driver treats the input as data, not executable code.
+            </div>
+        </div>
 
-A detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742
+        <div class="issue">
+            <span class="severity">Medium Severity</span>
+            <p class="recommendation">Recommendation 3: Improve Error Reporting and Logging</p>
+            <p class="description"><em>Currently, error messages are printed to the console.  For production-ready code, this is insufficient.  More robust logging is needed.</em></p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Implement a proper logging mechanism using the Python `logging` module.  Log errors to a file, and consider different log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL) for better control over the output.
+            </div>
+        </div>
+
+        <div class="issue">
+            <span class="severity">Medium Severity</span>
+            <p class="recommendation">Recommendation 4:  Improve Table Name Extraction</p>
+            <p class="description"><em>The way the table name is extracted from the query in `format_sql_result` is fragile and prone to errors if the query structure changes.</em></p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Use a more robust method to parse the SQL query and extract the relevant table names.  Consider using a SQL parser library to reliably extract table names from complex queries.
+            </div>
+        </div>
+
+        <div class="issue">
+            <span class="severity">Medium Severity</span>
+            <p class="recommendation">Recommendation 5:  Handle `delete_temp_table` failures</p>
+            <p class="description"><em>The `delete_temp_table` function prints an error but doesn't propagate the failure.  This might lead to resource leaks (though in-memory, the impact is limited).</em></p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Either raise an exception from `delete_temp_table` on failure, or at least add a warning/log message that explains what happened and why the temporary table might not have been deleted.  A more resilient approach would attempt a few deletion attempts before returning a failure.
+            </div>
+        </div>
+
+
+        <div class="issue">
+            <span class="severity">Low Severity</span>
+            <p class="recommendation">Recommendation 6: Code Clarity and Readability</p>
+            <p class="description"><em>Some parts of the code could be more readable. For example, the `format_sql_result` function is quite dense.</em></p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Break down complex functions into smaller, more manageable ones with descriptive names. Add comments to explain the purpose and logic of different sections. Consider refactoring to improve the flow of the code.
+            </div>
+        </div>
+
+
+        <div class="issue">
+            <span class="severity">Low Severity</span>
+            <p class="recommendation">Recommendation 7:  Unnecessary `if not result` check</p>
+            <p class="description"><em>The `if not result:` check in `format_sql_result` is redundant. An empty result will already be handled by the subsequent `if len(result) == 1 and len(result[0]) == 1` condition.</em></p>
+            <div class="suggestion">
+                <strong>Suggested Improvement:</strong> Remove the unnecessary `if not result:` check to make the function simpler.
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
+
