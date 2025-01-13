@@ -26,7 +26,7 @@ function App() {
         <Routes>
           {/* <Route path="/" element={<Home />} /> */}
           <Route
-            path="/"
+            path="/home"
             element={
               <>
                 <h2>Home</h2>
