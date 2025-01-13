@@ -1,21 +1,17 @@
-import google.generativeai as genai
-
-
 from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from pymongo import MongoClient
 import numpy as np
 import os
 from flask import Flask, request, jsonify
-import logging
+from sentence_transformers import SentenceTransformer
 
 
 
 # Define connection string
 connection_string = "mongodb+srv://rrtcosmos:P%40ssw0rd%40001@aipocrag.mongocluster.cosmos.azure.com/?tls=true&authMechanism=SCRAM-SHA-256&retrywrites=false&maxIdleTimeMS=120000"
 
-# Configure Google API key
-genai.configure(api_key='AIzaSyDcUXpNzQMIj4TMdoL2tIG-LQzRxk31-1c')
+
 
 
 # Function to connect to MongoDB
@@ -37,14 +33,13 @@ def get_collection(collection_name):
         raise Exception(f"Error getting collection: {str(e)}")
 
 # Generate embeddings for text
-def generate_embedding(text):
-    if not text.strip():
-        raise ValueError("Invalid input: 'content' argument must not be empty. Please provide a non-empty value.")
-    response = genai.embed_content(
-        model="models/text-embedding-004",
-        content=text
-    )
-    return response["embedding"]
+def generate_embedding(data):
+    model = SentenceTransformer("nomic-ai/nomic-embed-text-v1", trust_remote_code=True)
+    try:
+        embedding = model.encode(data)
+        return embedding.tolist()
+    except Exception as e:
+        raise Exception(f"Error generating embedding: {str(e)}")
 
 # Function to calculate cosine similarity
 def cosine_similarity(vec1, vec2):
