@@ -87,7 +87,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
           <div className="userDiv">
             <span style={{ marginRight: 15, fontSize: 12 }}>
-              Moldel in use:{" "}
+              Model in use:{" "}
               <b>
                 {localStorage.getItem("model")?.toUpperCase()?.toUpperCase()}
               </b>
