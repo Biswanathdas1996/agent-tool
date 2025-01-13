@@ -1,6 +1,11 @@
 import os
 import openai
 
+from Gemini.gemini import call_gemini
+
+from config import TECHNOLOGY
+
+
 # Define paths
 INPUT_FOLDER = "./Code/src_code"
 OUTPUT_FOLDER = "./Code/report"
@@ -104,30 +109,36 @@ def analyze_code(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             code_content = file.read()
+        prompt = f"""
+                    Analyze the following code for quality issues, best practices, correctness, and security. Provide detailed feedback and recommendations in an ordered list, one by one. Format the output as a well-structured HTML report.
 
-        set_openai_api_key()
-        response = openai.ChatCompletion.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "You are a code quality analyzer."},
-                {"role": "user", "content": f"""
-                Analyze the following code for quality issues, best practices, correctness, and security. Provide detailed feedback and recommendations in an ordered list, one by one. Format the output as a well-structured HTML report.
+                    Code:
+                    {code_content}
+                    \n\n
+                    Output format:\n
+                    - Provide details documentations of the code.\n
+                    - The report should be structured in an HTML format with a `<head>` containing metadata and a `<body>` with a title, introduction, Code documentations and the ordered list of recommendations.\n
+                    - Each recommendation in the ordered list should have a brief description followed by the suggested improvement or best practice.\n
+                    - Ensure the HTML is properly formatted with appropriate sections, headings, and lists.\n
 
-                Code:
-                {code_content}
-                \n\n
-                Output format:\n
-                - Provide details documentations of the code.\n
-                - The report should be structured in an HTML format with a `<head>` containing metadata and a `<body>` with a title, introduction, Code documentations and the ordered list of recommendations.\n
-                - Each recommendation in the ordered list should have a brief description followed by the suggested improvement or best practice.\n
-                - Ensure the HTML is properly formatted with appropriate sections, headings, and lists.\n
-
-                Example HTML structure:
-                {SAMPLE_FORMAT}\n
-                """}
-            ]
-        )
-        return response['choices'][0]['message']['content']
+                    Example HTML structure:
+                    {SAMPLE_FORMAT}\n
+                    """
+        if(TECHNOLOGY != "GEMINI"):
+            print("Using OpenAI")
+            set_openai_api_key()
+            response = openai.ChatCompletion.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "You are a code quality analyzer."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            return response['choices'][0]['message']['content']
+        else:
+            print("Using Gemini")
+            return call_gemini("You are a code quality analyzer", prompt)    
+    
     except Exception as e:
         return f"Error analyzing code: {e}"
 
@@ -138,27 +149,33 @@ def generate_doc_for_code(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             code_content = file.read()
+        prompt = f"""
+                    Reverse engineer the following code and provide detailed documentations of the code. The report should be structured in an HTML format with a `<head>` containing metadata and a `<body>` with a title, introduction, Code documentations and the ordered list of recommendations.\n
+                    
+                    Code:
+                    {code_content}
+                    \n\n
+                    Output format:\n
+                    - Provide details documentations of the code.\n
+                    - The report should be structured in an HTML format with a `<head>` containing metadata and a `<body>` with a title, introduction, Code documentations and the ordered list of recommendations.\n
+                    - Each recommendation in the ordered list should have a brief description followed by the suggested improvement or best practice.\n
+                    - Ensure the HTML is properly formatted with appropriate sections, headings, and lists.\n
+                    """
+        if(TECHNOLOGY != "GEMINI"):
+            print("Using OpenAI")
+            set_openai_api_key()
+            response = openai.ChatCompletion.create(
+                model="gpt-4o",
+                messages=[
+                    {"role": "system", "content": "You are a code quality analyzer."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            return response['choices'][0]['message']['content']
+        else:
+            print("Using Gemini")
+            return call_gemini("You are a code quality analyzer", prompt)
 
-        set_openai_api_key()
-        response = openai.ChatCompletion.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": "You are a code quality analyzer."},
-                {"role": "user", "content": f"""
-                Reverse engineer the following code and provide detailed documentations of the code. The report should be structured in an HTML format with a `<head>` containing metadata and a `<body>` with a title, introduction, Code documentations and the ordered list of recommendations.\n
-                 
-                Code:
-                {code_content}
-                \n\n
-                Output format:\n
-                - Provide details documentations of the code.\n
-                - The report should be structured in an HTML format with a `<head>` containing metadata and a `<body>` with a title, introduction, Code documentations and the ordered list of recommendations.\n
-                - Each recommendation in the ordered list should have a brief description followed by the suggested improvement or best practice.\n
-                - Ensure the HTML is properly formatted with appropriate sections, headings, and lists.\n
-                """}
-            ]
-        )
-        return response['choices'][0]['message']['content']
     except Exception as e:
         return f"Error generating documentation: {e}"
 

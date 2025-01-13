@@ -134,3 +134,4 @@ dist
 
 # Secrets file
 Backend/project_keys
+Backend/secretes
