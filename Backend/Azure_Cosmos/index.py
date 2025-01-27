@@ -64,7 +64,7 @@ def process_and_upload_files(file_paths,  collection_name):
             raise FileNotFoundError(f"File {path} not found or empty.")
 
         # Split text into smaller chunks
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=20)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=600, chunk_overlap=20)
         split_docs = text_splitter.split_documents(documents)
 
         # Prepare documents for insertion

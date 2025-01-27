@@ -39,7 +39,7 @@ const CreateCode: React.FC<CreateCodeProps> = ({
               id="demo-simple-select"
               value={codeLang}
               label="Select language"
-              onChange={handleChange}
+              onChange={(e) => handleChange(e)}
               size="small"
               style={{ width: "300px" }}
             >

@@ -1,9 +1,6 @@
 import React, { useEffect } from "react";
 import WelcomeChatComp from "../components/WelcomeChatComp";
 import Loader from "../components/Loader";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { useAlert } from "../hook/useAlert";
 import AceEditor from "react-ace";
@@ -73,7 +70,8 @@ const Chat: React.FC = () => {
   const [testScriptLang, setTestScriptLang] = React.useState("");
   const urlParams = new URLSearchParams(window.location.hash.split("?")[1]);
   const taskId = urlParams.get("task");
-  const [value, setValue] = React.useState<any>(null);
+  const [codeAccuracyPercentage, setCodeAccuracyPercentage] =
+    React.useState<any>(0);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
@@ -183,9 +181,17 @@ const Chat: React.FC = () => {
     }
   };
 
+  // const handleChange = (event: SelectChangeEvent) => {
+  //   setCodeLang(event.target.value as string);
+  // };
   const handleChange = (event: SelectChangeEvent) => {
     setCodeLang(event.target.value as string);
+    localStorage.setItem("codeLang", event.target.value as string);
   };
+
+  useEffect(() => {
+    setCodeLang(localStorage.getItem("codeLang") || "");
+  }, [codeLang]);
 
   const callGpt = async (query: string): Promise<string | null> => {
     setLoading(true);
@@ -392,23 +398,29 @@ const Chat: React.FC = () => {
     }
   };
 
-  const generateCode = async (codeSuggestion?: string): Promise<any> => {
+  const generateCode = async (
+    codeSuggestion?: string,
+    attempt = 1,
+    code?: string
+  ): Promise<any> => {
     setCodeLoading(true);
     try {
+      console.log(`Attempt #${attempt}`);
+
       const instructionForCode = getInstructions("instructionForCode");
       let prompt = "";
 
       if (codeSuggestion) {
         prompt = `
-          Refactor the code below as per the suggestions:
-          
+          Refactor the ${codeLang} code below as per the suggestions:
+  
           Code: 
           ${code}
-          
+  
           that supports the below test cases: ${testCase}  
-          
+  
           Generate the full code that can be directly run on codesandbox
-          
+  
           Suggestions: 
           ${codeSuggestion}
         `;
@@ -416,21 +428,64 @@ const Chat: React.FC = () => {
         prompt = `
           Generate sample code example in ${codeLang} for the user story of: ${userStory} 
           that supports the below test cases: ${testCase}
-
+  
           Generate the full code that can be directly run on codesandbox
-          
+          Do not include any extra texts or suggestions.
           Follow the instructions: 
           ${instructionForCode}
         `;
       }
+      setCodeLoading(true);
+      const generatedTestCode = await callGpt(prompt);
+      setCode(generatedTestCode);
 
-      const testCode = await callGpt(prompt);
-      setCode(testCode);
-
-      if (testCode) {
-        localStorage.setItem("code", testCode);
+      if (generatedTestCode) {
+        localStorage.setItem("code", generatedTestCode);
       }
-      return testCode;
+
+      // Validate the generated code using GPT and get a score with suggestions
+      const validationPrompt = `
+        Evaluate the following code for how well it adheres to the user story: ${userStory}.
+        Code:
+        ${generatedTestCode}
+  
+        Provide:
+        1. A strict numeric score between 0 and 100, where 100 means it perfectly meets the user story requirements.
+        2. Suggestions for improving the code to achieve the highest accuracy.
+        3. Strict only on ${codeLang}, do not change the code language.
+  
+        Format the response as:
+        Score: <numeric_score>
+        Suggestions: <list_of_suggestions>
+      `;
+
+      setCodeLoading(true);
+      const validationResponse = await callGpt(validationPrompt);
+
+      // Replace the regex with a compatible version
+      const scoreMatch = validationResponse?.match(/Score:\s*(\d+)/);
+      const suggestionsMatch = validationResponse?.match(
+        /Suggestions:\s*([\s\S]+)/
+      );
+
+      const score = scoreMatch ? parseInt(scoreMatch[1], 10) : 0;
+      const suggestions = suggestionsMatch ? suggestionsMatch[1].trim() : "";
+      setCodeAccuracyPercentage(score);
+      console.log(`Validation Score: ${score}`); // Log the score for debugging
+      console.log(`Suggestions: ${suggestions}`); // Log suggestions for debugging
+
+      // If the score is >= 99 or we've reached the max attempts, return the code
+      if ((!isNaN(score) && score >= 85) || attempt >= 5) {
+        return generatedTestCode;
+      } else {
+        // If validation fails, recurse to generate new code with suggestions
+        setCodeLoading(true);
+        return await generateCode(
+          suggestions,
+          attempt + 1,
+          generatedTestCode as string
+        );
+      }
     } catch (error) {
       console.error("Error generating code:", error);
       triggerAlert("Failed to generate code", "error");
@@ -473,7 +528,7 @@ const Chat: React.FC = () => {
   const deploy_Code = async () => {
     if (!code) return;
     if (codeLang !== "HTML") {
-      triggerAlert("We only support HTML deploy for now", "error");
+      triggerAlert("We only support HTML deployment for now", "error");
       return;
     }
 
@@ -819,6 +874,11 @@ const Chat: React.FC = () => {
                       )}
                       <br />
                       <h2>Generated Code</h2>
+                      {codeAccuracyPercentage != 0 && (
+                        <b style={{ fontSize: 14 }}>
+                          Accuracy as per user story {codeAccuracyPercentage}%
+                        </b>
+                      )}
                       <br />
                       <CodeTables
                         tab1={() => {
@@ -843,7 +903,6 @@ const Chat: React.FC = () => {
                         }}
                         code={code}
                       />
-
                       <div
                         style={{
                           display: "flex",
@@ -875,7 +934,6 @@ const Chat: React.FC = () => {
                           />
                         </button>
                       </div>
-
                       <div>
                         {deployedUrl && (
                           <>
