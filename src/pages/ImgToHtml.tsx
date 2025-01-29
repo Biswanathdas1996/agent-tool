@@ -69,6 +69,9 @@ const ImgToHtml: React.FC = () => {
   }
 
   const convertImageToHtml = async (file: File) => {
+    setHtmlCode("");
+    setStreaming("");
+    setLoading(true);
     if (!file) {
       return;
     }
@@ -157,7 +160,7 @@ const ImgToHtml: React.FC = () => {
       {image && (
         <div style={{ marginTop: "20px" }}>
           <h2>Selected Image:</h2>
-          <Card style={{ width: "70%" }}>
+          <Card style={{ width: "45%" }}>
             <img
               src={URL.createObjectURL(image)}
               alt="Uploaded"
