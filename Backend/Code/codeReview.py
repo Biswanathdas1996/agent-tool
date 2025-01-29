@@ -137,7 +137,7 @@ def analyze_code(file_path):
             return response['choices'][0]['message']['content']
         else:
             print("Using Gemini")
-            return call_gemini("You are a code quality analyzer", prompt)    
+            return call_gemini(prompt)    
     
     except Exception as e:
         return f"Error analyzing code: {e}"
@@ -174,7 +174,7 @@ def generate_doc_for_code(file_path):
             return response['choices'][0]['message']['content']
         else:
             print("Using Gemini")
-            return call_gemini("You are a code quality analyzer", prompt)
+            return call_gemini(prompt)
 
     except Exception as e:
         return f"Error generating documentation: {e}"

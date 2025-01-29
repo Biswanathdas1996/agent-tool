@@ -10,7 +10,7 @@ try:
 except Exception as e:
     print(f"Error setting environment variable: {e}")
 
-def call_gemini(config, prompt, max_tokens=50, temperature=0.5, top_p=1):
+def call_gemini(prompt):
     try:
         response = model.generate_content(prompt)
         return response.text.replace('```','').replace('gherkin','')

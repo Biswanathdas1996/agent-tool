@@ -52,7 +52,7 @@ def extract_image(file_path):
         ]
         if(TECHNOLOGY == "GEMINI"):
             print("Using Gemini")
-            return call_gemini("You are a good image reader", content, max_tokens=2048)
+            return call_gemini(content)
         else:
             print("Using OpenAI")
             return call_gpt("You are a good image reader", content, max_tokens=2048)
@@ -71,7 +71,7 @@ def direct_gpt_call():
         try:
             if(TECHNOLOGY == "GEMINI"):
                 print("Using Gemini")
-                result_json = call_gemini("You are a polite, helping intelligent agent", user_question, token_limit)
+                result_json = call_gemini(user_question)
             else:
                 print("Using OpenAI")
                 result_json = call_gpt("You are a polite, helping intelligent agent", user_question, token_limit)    

@@ -19,6 +19,7 @@ import VoiceChatIcon from "@mui/icons-material/VoiceChat";
 import DatasetLinkedIcon from "@mui/icons-material/DatasetLinked";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import HtmlIcon from "@mui/icons-material/Html";
 
 const iconStyle = {
   //  color: "#d04a02",
@@ -59,6 +60,11 @@ const routes = [
     path: "/code-review",
     name: "Code Review",
     icon: () => <TerminalIcon style={iconStyle} />,
+  },
+  {
+    path: "/img-html",
+    name: "Image to Code",
+    icon: () => <HtmlIcon style={iconStyle} />,
   },
   {
     path: "/upload",

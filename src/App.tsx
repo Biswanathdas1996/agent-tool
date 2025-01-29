@@ -15,6 +15,7 @@ import UserStoryGeneration from "./pages/UserStoryGeneration";
 import Backlog from "./pages/Code/Backlog";
 import Upload from "./pages/Upload";
 import Config from "./pages/Config";
+import ImgToHtml from "./pages/ImgToHtml";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="/data-chat" element={<ChatWithUnstructure />} />
           <Route path="/code-review" element={<CodeReview />} />
           <Route path="/code-doc" element={<CodeDoc />} />
+          <Route path="/img-html" element={<ImgToHtml />} />
           <Route path="/story" element={<UserStoryGeneration />} />
           <Route path="/backlog/story" element={<UserStoryGeneration />} />
           <Route path="/upload" element={<Upload />} />

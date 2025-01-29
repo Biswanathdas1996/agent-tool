@@ -16,6 +16,8 @@ export const LIST_ALL_COLLECTION = `${BASE_URL}/list-index-mongo`;
 
 export const COLLECTIONS = `${BASE_URL}/collection`;
 export const EXTRACT_IMAGE_TO_TEXT = `${BASE_URL}/extract-img`;
+export const IMG_TO_HTML = `${BASE_URL}/generate-img-to-html`;
+export const IMG_TO_HTML_STREAM = `${BASE_URL}/stream-generate-img-to-html`;
 export const QUERY_LIST = `${BASE_URL}/query-list`;
 export const GENERATE_ERD_FROM_DB = `${BASE_URL}/generate-erd-from-db`;
 export const GET_ERD_IMG = `${BASE_URL}/get-erd-image`;
