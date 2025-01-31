@@ -5,7 +5,7 @@ from Gemini.gemini import call_gemini
 
 from config import TECHNOLOGY
 
-
+# hello world
 # Define paths
 INPUT_FOLDER = "./Code/src_code"
 OUTPUT_FOLDER = "./Code/report"

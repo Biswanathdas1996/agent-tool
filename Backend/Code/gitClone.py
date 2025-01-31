@@ -4,7 +4,7 @@ from git.exc import GitCommandError
 import shutil
 import stat
 
-
+# hello hello 
 def remove_readonly(func, path, excinfo):
     try:
         os.chmod(path, stat.S_IWRITE)
