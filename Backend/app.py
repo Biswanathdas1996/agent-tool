@@ -9,6 +9,7 @@ from Code.index import render_code_review_agent
 from Gpt.index import render_gpt_pack
 from Azure_Cosmos.index import render_cosmos_pack
 from img_to_html.index import render_img_to_html_pack
+from CodeCompare.index import render_code_compare_pack
 from secretes.secrets import OPENAI_API_KEY
 
 def create_app():
@@ -35,6 +36,7 @@ def create_app():
     app = render_code_review_agent(app)
     app = render_gpt_pack(app)
     app = render_img_to_html_pack(app)
+    app = render_code_compare_pack(app)
 
     CORS(app)
 
@@ -57,4 +59,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run()
+    app.run(debug=True)
