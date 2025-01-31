@@ -49,11 +49,9 @@
 
 .active-link .css-1umw9bq-MuiSvgIcon-root::after {
   color: white !important;
-}
-
-.active-link button::after {
-  content: "";
-  width: 5px;
+  und-color: #d04a02;
+  color: white;
+  dth: 5px;
   height: 100%;
   position: absolute;
   right: 5px;

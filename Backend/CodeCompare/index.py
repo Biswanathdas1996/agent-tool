@@ -40,17 +40,23 @@ def submit_to_compare_code():
         if not pr_number:
             return jsonify({'error': 'pr_number is required'}), 400
         
-        # Example usage:
-        owner = "Biswanathdas1996"
-        repo = "agent-tool"
-        pr_number = 1
+        # # Example usage:
+        # owner = "Biswanathdas1996"
+        # repo = "agent-tool"
+        # pr_number = 1
 
         changes = get_pr_code_changes(owner, repo, pr_number)
         print(changes)
 
         prompt = f"""
-        Compare the code changes in the PR with the user story below and provide feedback on the code changes.
+        Compare the code changes in the PR with the user story below and provide feedback in a html format on the code changes.
 
+        give missing points in the code changes
+        suggest improvements in the code changes
+        give feedback on the code changes
+
+        give a revised code conceding the missing points
+        add the code inside the <code> or <pre> tag
         user story: {user_story}
 
         code changes:{changes}

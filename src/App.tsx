@@ -16,6 +16,7 @@ import Backlog from "./pages/Code/Backlog";
 import Upload from "./pages/Upload";
 import Config from "./pages/Config";
 import ImgToHtml from "./pages/ImgToHtml";
+import CompareCode from "./pages/CompareCode";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           <Route path="/backlog/story" element={<UserStoryGeneration />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/backlog" element={<Backlog />} />
+          <Route path="/compare-code" element={<CompareCode />} />
           <Route path="/config" element={<Config />} />
         </Routes>
       </Layout>

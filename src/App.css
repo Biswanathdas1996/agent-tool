@@ -6,6 +6,30 @@ body {
   font-family: "Open Sans", sans-serif !important;
 }
 
+pre {
+  display: block !important;
+  font-family: monospace !important;
+  unicode-bidi: isolate !important;
+  white-space: pre !important;
+  margin: 1em 0px !important;
+  background: #181818 !important;
+  color: #09e509 !important;
+  padding: 10px !important;
+  border-radius: 12px !important;
+}
+
+code {
+  display: block !important;
+  font-family: monospace !important;
+  unicode-bidi: isolate !important;
+  white-space: pre !important;
+  margin: 1em 0px !important;
+  background: #181818 !important;
+  color: #09e509 !important;
+  padding: 10px !important;
+  border-radius: 12px !important;
+}
+
 .card-container {
   background-color: #ffffff;
   border: 1px solid #dcdcdc;
