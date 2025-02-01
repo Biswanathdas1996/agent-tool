@@ -120,7 +120,7 @@ const UserRegistrationForm: React.FC = () => {
           ) : (
             <TextField
               select
-              label="PR Number"
+              label="Pull Request Number"
               value={formData.pr_number}
               name="pr_number"
               onChange={handleChange}
@@ -131,7 +131,7 @@ const UserRegistrationForm: React.FC = () => {
                 native: true,
               }}
             >
-              <option value="">Select PR Number</option>
+              <option value="">Select Pull Request Number</option>
               {prDetails &&
                 prDetails.map((pr: any) => (
                   <option key={pr.number} value={pr.number}>
