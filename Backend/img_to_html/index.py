@@ -116,6 +116,7 @@ def generate(image_file):
         yield f"Image Extraction started.\n\n"
         response = extract_image(image_path)
         yield f"Image content extracted successfully.\n\n"
+        yield response
         yield f"Generating code with context...\n\n"
         html_code = generate_html(response)
         yield f"Filtering the code\n\n"

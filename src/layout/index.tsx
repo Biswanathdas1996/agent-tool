@@ -20,6 +20,7 @@ import DatasetLinkedIcon from "@mui/icons-material/DatasetLinked";
 import TerminalIcon from "@mui/icons-material/Terminal";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import HtmlIcon from "@mui/icons-material/Html";
+import CompareIcon from "@mui/icons-material/Compare";
 
 const iconStyle = {
   //  color: "#d04a02",
@@ -65,6 +66,11 @@ const routes = [
     path: "/img-html",
     name: "Image to Code",
     icon: () => <HtmlIcon style={iconStyle} />,
+  },
+  {
+    path: "/compare-code",
+    name: "Compare Code",
+    icon: () => <CompareIcon style={iconStyle} />,
   },
   {
     path: "/upload",
@@ -129,7 +135,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 >
                   <button className="sidenav-button">
                     {route.icon()}
-                    <span style={{ fontSize: 14 }}>{route.name}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600 }}>
+                      {route.name}
+                    </span>
                   </button>
                 </a>
               );

@@ -20,6 +20,8 @@ const UserRegistrationForm: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   const [loading, setLoading] = useState(false);
+  const [fetchingPR, setFetchingPR] = useState(false);
+  const [prDetails, setPrDetails] = useState<any>(null);
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -54,10 +56,44 @@ const UserRegistrationForm: React.FC = () => {
     }
   };
 
+  const fetchPullRequestDetails = async () => {
+    setFetchingPR(true);
+    try {
+      const response = await fetch(
+        `https://api.github.com/repos/${formData.owner}/${formData.repo}/pulls`
+      );
+      const prDetails = await response.json();
+      console.log(prDetails);
+
+      const prData = prDetails.map((pr: any) => ({
+        number: pr.number,
+        title: pr.title,
+      }));
+
+      setPrDetails(prData);
+      setFetchingPR(false);
+    } catch (error) {
+      console.error("Error fetching PR details:", error);
+      setFetchingPR(false);
+    }
+  };
+
+  React.useEffect(() => {
+    fetchPullRequestDetails();
+  }, []);
+
+  React.useEffect(() => {
+    fetchPullRequestDetails();
+  }, [formData.owner, formData.repo]);
+
   return (
     <>
-      <h2>Compare code </h2>
-
+      <h2 style={{ marginBottom: 0 }}>Compare code </h2>
+      <span style={{ marginBottom: 20, fontSize: 11 }}>
+        Sample repo: <b>https://github.com/Biswanathdas1996/agent-tool/pulls</b>
+      </span>
+      <br />
+      <br />
       <Container>
         <Typography variant="h4" gutterBottom></Typography>
         <Box display="flex" flexDirection="column" gap={2}>
@@ -79,16 +115,32 @@ const UserRegistrationForm: React.FC = () => {
               startAdornment: <GitHubIcon style={{ marginRight: 10 }} />,
             }}
           />
-          <TextField
-            label="PR Number"
-            value={formData.pr_number}
-            name="pr_number"
-            type="number"
-            onChange={handleChange}
-            InputProps={{
-              startAdornment: <TerminalIcon style={{ marginRight: 10 }} />,
-            }}
-          />
+          {fetchingPR ? (
+            <Loader showIcon={false} text="Fetching PR List" />
+          ) : (
+            <TextField
+              select
+              label="PR Number"
+              value={formData.pr_number}
+              name="pr_number"
+              onChange={handleChange}
+              InputProps={{
+                startAdornment: <TerminalIcon style={{ marginRight: 10 }} />,
+              }}
+              SelectProps={{
+                native: true,
+              }}
+            >
+              <option value="">Select PR Number</option>
+              {prDetails &&
+                prDetails.map((pr: any) => (
+                  <option key={pr.number} value={pr.number}>
+                    {pr.title}
+                  </option>
+                ))}
+            </TextField>
+          )}
+
           <TextField
             type="textarea"
             label="User Story"
