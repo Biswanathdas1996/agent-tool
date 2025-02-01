@@ -251,11 +251,11 @@ const Chat: React.FC = () => {
       const response = await fetchData(EXTRACT_IMAGE_TO_TEXT, requestOptions);
       const result = await response.json();
       console.log(result);
+      setImageUploadLoading(false);
       await generateUserStory(result?.details);
     } catch (error) {
       console.error("Error uploading file:", error);
       triggerAlert("Failed to upload file", "error");
-    } finally {
       setImageUploadLoading(false);
     }
   };

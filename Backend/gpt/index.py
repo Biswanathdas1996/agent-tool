@@ -5,11 +5,13 @@ from PIL import Image  # type: ignore
 import base64
 from io import BytesIO
 
-
+import google.generativeai as genai
 from Gemini.gemini import call_gemini
-
+from secretes.secrets import GOOGLE_ING_MODEL_NAME, GEMINI_API_KEY
 from config import TECHNOLOGY
 
+img_model = genai.GenerativeModel(model_name=GOOGLE_ING_MODEL_NAME)
+genai.configure(api_key=GEMINI_API_KEY)
 
 def call_gpt(config, prompt, max_tokens=50):
     """Call the GPT model with the given configuration and prompt."""
@@ -35,7 +37,7 @@ def call_gpt(config, prompt, max_tokens=50):
         return f"An error occurred: {e}"
 
 
-def extract_image(file_path):
+def extract_image_GPT(file_path):
     """Extract image details and convert to base64."""
     try:
         img = Image.open(file_path)
@@ -50,15 +52,33 @@ def extract_image(file_path):
                 }
             }
         ]
-        if(TECHNOLOGY == "GEMINI"):
-            print("Using Gemini")
-            return call_gemini(content)
-        else:
-            print("Using OpenAI")
-            return call_gpt("You are a good image reader", content, max_tokens=2048)
+        return call_gpt("You are a good image reader", content, max_tokens=2048)
         
     except Exception as e:
         return f"An error occurred while processing the image: {e}"
+    
+
+def extract_image_GEMINI(file_path):
+    """Extract image details and convert to base64."""
+    try:
+        img = Image.open(file_path)
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        img_base64 = base64.b64encode(buffered.getvalue()).decode('utf-8')
+        encoded_image = img_base64
+        mime_type = "image/png"
+        prompt = """ 
+            You are a good image reader.\n
+            describe the image in details.\n
+            get details color, size, position, and other details.\n
+        """
+        print("Generating content from image...")
+        response = img_model.generate_content([{'mime_type': mime_type, 'data': encoded_image}, prompt])
+        print("Content generated from image.")
+        return response.text
+    except Exception as e:
+        print(f"An error occurred while extracting image content: {e}")
+        return f"An error occurred while extracting image content: {e}"
 
 def direct_gpt_call():
     """Handle direct GPT call from the API."""
@@ -89,8 +109,11 @@ def extract_img_api():
         file = request.files['file']
         file_path = os.path.join(os.environ["IMG_UPLOAD_FOLDER"], file.filename)
         file.save(file_path)
-        try: 
-            img_details = extract_image(file_path)
+        try:
+            if(TECHNOLOGY == "GEMINI"):
+                img_details = extract_image_GEMINI(file_path)
+            else:     
+                img_details = extract_image_GPT(file_path)
             return jsonify({"details": img_details}), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 500
